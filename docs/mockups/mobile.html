@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>MovieMaker — Android editor screens</title>
+  <link rel="stylesheet" href="wireframe.css">
+  <style>
+    .preview-m { position: relative; height: 191px; background: #111; display: grid; place-items: center; flex: none; }
+    .transport-m { height: 40px; padding: 0 10px; display: flex; align-items: center; gap: 8px; border-bottom: 1.5px solid var(--soft); flex: none; }
+    .strip { position: relative; overflow: hidden; flex: none; }
+    .s-clip { position: absolute; border: 1.5px solid var(--line); border-radius: 3px; overflow: hidden; font-size: 10px; padding: 1px 3px; white-space: nowrap; }
+    .s-clip .ov { position: absolute; top: 0; bottom: 0; left: 0; border-right: 1.5px dashed var(--line); background-color: rgba(255, 255, 255, .6); }
+    .s-bar { position: absolute; border: 1px solid var(--line); border-radius: 3px; font-size: 9px; padding: 0 3px; overflow: hidden; white-space: nowrap; }
+    .cap { background: #fff8e1; }
+    .nar { background: #eef6ff; }
+    .mus { background: #f0f0f0; }
+    .ph { position: absolute; top: 0; bottom: 0; width: 2px; background: #e03131; z-index: 5; }
+    .grip { position: absolute; top: -2px; bottom: -2px; width: 8px; background: var(--sel); border-radius: 2px; z-index: 4; }
+    .fab { position: absolute; right: 16px; bottom: 72px; width: 52px; height: 52px; border-radius: 16px; background: var(--ink); color: #fff; display: grid; place-items: center; font-size: 26px; z-index: 6; box-shadow: 0 4px 10px rgba(0, 0, 0, .25); }
+    .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .tile { display: flex; flex-direction: column; gap: 3px; font-size: 11px; }
+    .tile .thumb { height: 52px; }
+    .tile.on .thumb { outline: 3px solid var(--sel); outline-offset: 1px; }
+    .kv-m { display: grid; grid-template-columns: 96px 1fr; gap: 6px; align-items: center; }
+    .filmstrip { position: relative; height: 48px; display: flex; border: 1.5px solid var(--line); border-radius: 3px; overflow: hidden; }
+    .filmstrip .thumb { flex: 1; height: 100%; border: 0; border-right: 1px solid #999; border-radius: 0; }
+    .shade { position: absolute; top: 0; bottom: 0; background: rgba(0, 0, 0, .45); }
+    .proj { display: flex; gap: 10px; align-items: center; padding: 8px 12px; border-bottom: 1px solid var(--soft); }
+    .lane-label { position: absolute; left: 4px; font-size: 9px; color: #666; z-index: 3; }
+  </style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <nav><a href="index.html">← All wireframes</a></nav>
+    <h1>Android — Editor screens</h1>
+    <p>A phone in portrait mode. The editor uses a time-scaled strip with a fixed centre playhead, bottom sheets for presets and properties, and full-screen sub-screens for trimming and audio. Same project as the desktop wireframes.</p>
+  </header>
+
+  <div class="phones">
+    <!-- A: Projects -->
+    <div class="phone-wrap">
+      <h3>A · Projects</h3>
+      <div class="phone">
+        <div class="statusbar-m"><span>9:41</span><span>▮▮▮ 85%</span></div>
+        <div class="appbar"><span class="bold grow" style="font-size:17px;padding-left:6px">MovieMaker</span><span class="btn ghost">⋮</span></div>
+        <div style="padding:10px 12px">
+          <div class="box col" style="gap:6px;background:var(--fill)">
+            <div class="row"><span class="n">2</span><span>Restore unsaved changes to “Summer 2026”?</span></div>
+            <div class="row" style="justify-content:flex-end"><span class="btn ghost">Discard</span><span class="btn primary">Restore</span></div>
+          </div>
+        </div>
+        <div class="panel-title" style="padding:4px 12px">Recent projects</div>
+        <div class="proj"><div class="thumb" style="width:96px;height:54px"></div><div class="col" style="gap:2px"><span class="bold">Summer 2026</span><span class="small muted">0:21 · edited today</span></div></div>
+        <div class="proj"><div class="thumb" style="width:96px;height:54px"></div><div class="col" style="gap:2px"><span class="bold">Grandma's 80th</span><span class="small muted">3:40 · last week</span></div></div>
+        <div class="proj"><div class="thumb" style="width:96px;height:54px"></div><div class="col" style="gap:2px"><span class="bold">Ski trip</span><span class="small muted">1:12 · March</span></div></div>
+        <div style="padding:12px">
+          <div class="box col" style="gap:6px">
+            <div class="row between"><span class="bold">App media folder</span><span class="n">1</span></div>
+            <div class="progress" style="--v:64%"></div>
+            <div class="small muted">3.2 GB used by 3 projects · 420 MB unused</div>
+            <span class="btn" style="align-self:flex-start">Clean up unused media</span>
+          </div>
+        </div>
+        <div style="padding:0 12px" class="row"><span class="btn">Open package (.mmpack)</span></div>
+        <div class="fab" style="bottom:24px;width:auto;padding:0 16px;font-size:14px;font-weight:600">+ New project</div>
+      </div>
+    </div>
+
+    <!-- B: Editor -->
+    <div class="phone-wrap">
+      <h3>B · Editor</h3>
+      <div class="phone">
+        <div class="statusbar-m"><span>9:41</span><span>▮▮▮ 85%</span></div>
+        <div class="appbar"><span class="btn ghost">←</span><span class="bold grow">Summer 2026</span><span class="btn ghost">↶</span><span class="btn ghost">↷</span><span class="btn primary">Export</span></div>
+        <div class="preview-m">
+          <div class="thumb" style="height:100%;aspect-ratio:4/3;border-color:#666"></div>
+          <div style="position:absolute;top:44%;width:100%;text-align:center;color:#fff;font-weight:600">Beach day</div>
+        </div>
+        <div class="transport-m"><span class="btn round">▶</span><span class="bold">00:06.2</span><span class="muted">/ 00:21.5</span><span class="grow"></span><span class="btn ghost">⛶</span></div>
+
+        <!-- 20 px per second; playhead fixed at x = 170 (6.2 s), so x = 46 + 20 × t -->
+        <div class="strip" style="height:150px">
+          <div class="ph" style="left:170px"></div>
+          <span class="pin" style="left:176px;top:2px"><span class="n">3</span></span>
+          <div class="lane-label" style="top:18px">CC</div>
+          <div class="s-bar cap" style="left:146px;width:150px;top:16px;height:14px">Beach day</div>
+          <div class="s-bar cap" style="left:296px;width:60px;top:16px;height:14px">Sunset</div>
+
+          <div class="s-clip" style="left:46px;width:60px;top:36px;height:52px;background:#333;color:#fff">Title</div>
+          <div class="s-clip thumb" style="left:86px;width:80px;top:36px;height:52px"><div class="ov hatch" style="width:20px"></div></div>
+          <div class="s-clip thumb" style="left:136px;width:60px;top:36px;height:52px;overflow:visible">
+            <div class="ov hatch" style="width:30px"></div>
+            <div class="grip" style="left:-5px"></div><div class="grip" style="right:-5px"></div>
+          </div>
+          <div class="s-clip thumb video" style="left:176px;width:120px;top:36px;height:52px"><div class="ov hatch" style="width:20px"></div></div>
+          <div class="s-clip thumb" style="left:296px;width:60px;top:36px;height:52px"></div>
+          <span class="pin" style="left:122px;top:80px"><span class="n">4</span></span>
+          <span class="pin" style="left:96px;top:26px"><span class="n">5</span></span>
+
+          <div class="lane-label" style="top:96px">Narr</div>
+          <div class="s-bar nar" style="left:106px;width:70px;top:94px;height:14px">Narr 01</div>
+          <div class="s-bar nar" style="left:312px;width:60px;top:94px;height:14px">Narr 02</div>
+          <div class="lane-label" style="top:116px">Music</div>
+          <div class="s-bar mus" style="left:46px;width:250px;top:114px;height:16px">♪ Summer song</div>
+          <div class="s-bar mus" style="left:296px;width:80px;top:114px;height:16px">♪ Waves</div>
+        </div>
+        <div class="small muted" style="padding:0 12px">Pinch to zoom. Long-press a clip to reorder.</div>
+
+        <div class="fab">+</div>
+        <div class="navbar">
+          <div><i></i>Media</div>
+          <div><i></i>Transition</div>
+          <div><i></i>Effects</div>
+          <div><i></i>Text</div>
+          <div><i></i>Audio</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- C: Transition sheet -->
+    <div class="phone-wrap">
+      <h3>C · Transition sheet</h3>
+      <div class="phone">
+        <div class="statusbar-m"><span>9:41</span><span>▮▮▮ 85%</span></div>
+        <div class="appbar"><span class="btn ghost">←</span><span class="bold grow">Summer 2026</span><span class="btn primary">Export</span></div>
+        <div class="preview-m">
+          <div class="thumb hatch" style="height:100%;aspect-ratio:4/3;border-color:#666"></div>
+          <span class="badge" style="right:6px;top:6px">Previewing Crossfade</span>
+        </div>
+        <span class="pin" style="left:8px;top:84px"><span class="n">6</span></span>
+
+        <div class="sheet" style="top:300px">
+          <div class="handle"></div>
+          <div class="row between"><span class="bold">Transition into IMG_2041</span><span class="muted">✕</span></div>
+          <div class="row" style="overflow:hidden"><span class="chip">None</span><span class="chip on">Blends</span><span class="chip">Wipes</span><span class="chip">Shapes</span><span class="chip">Motion</span><span class="chip">Curls</span></div>
+          <div class="tiles">
+            <div class="tile on"><div class="thumb"></div>Crossfade</div>
+            <div class="tile"><div class="thumb"></div>Dissolve</div>
+            <div class="tile"><div class="thumb"></div>Rough Dissolve</div>
+            <div class="tile"><div class="thumb"></div>Blur</div>
+            <div class="tile"><div class="thumb"></div>Blur Through Black</div>
+            <div class="tile"><div class="thumb"></div>Pixelate</div>
+          </div>
+          <div class="kv-m"><span class="row">Duration <span class="n">7</span></span><span class="row"><div class="slider grow" style="--v:79%"></div><b>1.5 s</b></span></div>
+          <div class="small muted">Maximum 1.9 s for these clips.</div>
+          <div class="row"><span class="btn grow" style="justify-content:center">Apply to all clips</span><span class="btn primary grow" style="justify-content:center">Done</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- D: Trim and speed -->
+    <div class="phone-wrap">
+      <h3>D · Video clip: trim and speed</h3>
+      <div class="phone">
+        <div class="statusbar-m"><span>9:41</span><span>▮▮▮ 85%</span></div>
+        <div class="appbar"><span class="btn ghost">←</span><span class="bold grow">VID_0112</span><span class="btn primary">Done</span></div>
+        <div class="preview-m" style="height:170px"><div class="thumb video" style="height:100%;aspect-ratio:16/9;border-color:#666"></div></div>
+        <div class="col" style="padding:10px 12px;gap:10px">
+          <div class="row between"><span class="bold">Trim</span><span class="n">8</span></div>
+          <div class="filmstrip">
+            <div class="thumb video"></div><div class="thumb video"></div><div class="thumb video"></div><div class="thumb video"></div><div class="thumb video"></div><div class="thumb video"></div>
+            <div class="shade" style="left:0;width:30px"></div><div class="shade" style="right:0;width:46px"></div>
+            <div class="grip" style="left:26px;top:0;bottom:0"></div><div class="grip" style="right:42px;top:0;bottom:0"></div>
+          </div>
+          <div class="row between small"><span>In 0:02.1</span><span class="muted">12.0 s → 6.0 s at 2×</span><span>Out 0:14.1</span></div>
+          <div class="row"><span class="btn">✂ Split at playhead</span><span class="n">9</span></div>
+          <div class="kv-m"><span>Speed</span><span class="row wrap" style="gap:4px"><span class="chip">0.5×</span><span class="chip">1×</span><span class="chip">1.5×</span><span class="chip on">2×</span><span class="chip">4×</span></span></div>
+          <div class="kv-m"><span>Keep pitch</span><span><span class="toggle on"></span></span></div>
+          <div class="kv-m"><span>Clip audio</span><span class="row"><span class="toggle on"></span><div class="slider grow" style="--v:50%"></div><span class="small">100%</span></span></div>
+          <div class="kv-m"><span>Audio fade in</span><span class="seg small"><span>None</span><span class="on">Slow</span><span>Med</span><span>Fast</span></span></div>
+          <div class="kv-m"><span>Audio fade out</span><span class="seg small"><span class="on">None</span><span>Slow</span><span>Med</span><span>Fast</span></span></div>
+          <div class="kv-m"><span>Stabilize</span><span><span class="toggle"></span></span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- E: Audio view -->
+    <div class="phone-wrap">
+      <h3>E · Audio</h3>
+      <div class="phone">
+        <div class="statusbar-m"><span>9:41</span><span>▮▮▮ 85%</span></div>
+        <div class="appbar"><span class="btn ghost">←</span><span class="bold grow">Audio</span><span class="btn">♪ Fit to Music</span></div>
+
+        <!-- 14 px per second from x = 26 -->
+        <div class="strip" style="height:200px;margin-top:8px">
+          <span class="pin" style="left:4px;top:0"><span class="n">10</span></span>
+          <div class="lane-label" style="top:26px">Pics</div>
+          <div class="s-clip thumb" style="left:26px;width:42px;top:20px;height:28px;background:#333"></div>
+          <div class="s-clip thumb" style="left:54px;width:56px;top:20px;height:28px"></div>
+          <div class="s-clip thumb" style="left:89px;width:42px;top:20px;height:28px"></div>
+          <div class="s-clip thumb video" style="left:117px;width:84px;top:20px;height:28px"></div>
+          <div class="s-clip thumb" style="left:201px;width:42px;top:20px;height:28px;outline:2px dashed var(--sel)"></div>
+          <div class="s-clip thumb" style="left:229px;width:42px;top:20px;height:28px"></div>
+          <div class="s-clip thumb video" style="left:257px;width:70px;top:20px;height:28px"></div>
+
+          <div class="lane-label" style="top:58px">CC</div>
+          <div class="s-bar cap" style="left:96px;width:105px;top:56px;height:16px">Beach day</div>
+          <div class="s-bar cap" style="left:201px;width:42px;top:56px;height:16px">Sunset</div>
+
+          <div class="lane-label" style="top:84px">Narr</div>
+          <div class="s-bar nar" style="left:68px;width:49px;top:82px;height:20px">Narr 01</div>
+          <div class="s-bar nar" style="left:212px;width:56px;top:82px;height:20px;outline:3px solid var(--sel);outline-offset:1px">Narr 02</div>
+          <div style="position:absolute;left:201px;top:48px;height:44px;border-left:2px dashed var(--sel)"></div>
+          <div style="position:absolute;left:201px;top:92px;width:11px;border-top:2px dashed var(--sel)"></div>
+
+          <div class="lane-label" style="top:116px">Music 1</div>
+          <div class="s-bar mus" style="left:26px;width:175px;top:112px;height:30px">♪ Summer song</div>
+          <div class="s-bar mus" style="left:201px;width:126px;top:112px;height:30px">♪ Waves</div>
+          <svg width="340" height="30" style="position:absolute;left:0;top:112px" aria-hidden="true">
+            <polyline points="26,6 64,6 68,22 117,22 121,6 208,6 212,22 268,22 272,6 327,6" fill="none" stroke="#e8590c" stroke-width="2"/>
+          </svg>
+          <div class="s-bar" style="left:26px;width:301px;top:150px;height:20px;border-style:dashed;color:#777;font-size:11px;padding-top:2px">+ Add music track</div>
+          <div class="ph" style="left:113px"></div>
+        </div>
+
+        <div class="box" style="margin:0 12px;padding:6px 8px">
+          <div class="row between"><span class="bold">Narr 02</span><span class="small" style="color:var(--sel)">Anchored to IMG_2050 +0.8 s</span></div>
+          <div class="row" style="margin-top:6px"><span class="btn">Fades</span><span class="btn">Volume</span><span class="btn">Trim</span><span class="grow"></span><span class="btn">Delete</span></div>
+        </div>
+
+        <div class="col" style="align-items:center;gap:6px;padding:14px 12px 0">
+          <div class="row"><div style="width:68px;height:68px;border-radius:50%;border:3px solid var(--ink);display:grid;place-items:center"><div style="width:44px;height:44px;border-radius:50%;background:#e03131"></div></div><span class="n">11</span></div>
+          <div class="small muted" style="text-align:center">Tap to record narration at the playhead.<br>It is anchored to the picture shown there.</div>
+        </div>
+        <div class="row between" style="padding:12px 16px 0"><span class="row">Lower music during narration <span class="n">12</span></span><span class="toggle on"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notes">
+    <div>
+      <h2>Notes</h2>
+      <ol>
+        <li><span class="n">1</span><span><b>App media folder.</b> Imported media is copied into app storage and shared between projects. This card shows its size and removes media no project uses. <i>Open package</i> imports a <code>.mmpack</code> through the system file picker.</span></li>
+        <li><span class="n">2</span><span><b>Recovery</b> is a banner, not a modal, so the app opens straight away.</span></li>
+        <li><span class="n">3</span><span><b>Time-scaled strip with a fixed playhead.</b> Scrolling the strip scrubs. Captions, narration, and music sit under the pictures on the same time scale, as thin read-only lanes.</span></li>
+        <li><span class="n">4</span><span><b>Selection.</b> Tap selects a clip and shows handles. Dragging a handle changes a photo's duration or trims a video. Long-press lifts the clip so it can be dragged to a new position.</span></li>
+        <li><span class="n">5</span><span><b>Transitions.</b> The hatched overlap is tappable and opens the transition sheet for the incoming clip.</span></li>
+        <li><span class="n">6</span><span><b>Sheets keep the preview visible.</b> Tapping a preset plays the transition in the preview at once.</span></li>
+        <li><span class="n">7</span><span><b>Duration limits</b> follow the minimum-duration rule, and the sheet shows the maximum.</span></li>
+        <li><span class="n">8</span><span><b>Trim screen.</b> A full-screen editor for a video clip: trim handles on a filmstrip, speed, pitch, clip audio, audio fades, and stabilization.</span></li>
+        <li><span class="n">9</span><span><b>Split</b> cuts at the playhead shown in the preview.</span></li>
+        <li><span class="n">10</span><span><b>Audio view.</b> A larger, editable version of the lanes. Pictures are shown for orientation. The selected narration clip shows its anchor link.</span></li>
+        <li><span class="n">11</span><span><b>Record narration</b> at the playhead. The new clip is anchored to the clip shown there.</span></li>
+        <li><span class="n">12</span><span><b>Ducking</b> is one switch. The orange line shows its effect.</span></li>
+      </ol>
+    </div>
+    <div>
+      <h2>Open questions</h2>
+      <ul class="q">
+        <li><span>Mobile strip: time-scaled (shown), or fixed-size cards like the desktop storyboard?</span></li>
+        <li><span>Narration recording: tap to start and stop (shown), or press and hold?</span></li>
+        <li><span>Should picture playback continue during narration recording, so the speaker can follow the pictures?</span></li>
+        <li><span>Captions: edit text on the preview, or in a text sheet?</span></li>
+        <li><span>Android tablets and landscape: reuse the phone layout, or use a layout closer to the desktop?</span></li>
+        <li><span>Should "Clean up unused media" ask for confirmation, listing the files to delete?</span></li>
+      </ul>
+    </div>
+  </div>
+</div>
+</body>
+</html>

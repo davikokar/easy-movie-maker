@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>MovieMaker — UI wireframes</title>
+  <link rel="stylesheet" href="wireframe.css">
+</head>
+<body>
+<div class="page">
+  <header>
+    <h1>MovieMaker — UI wireframes</h1>
+    <p>Low-fidelity wireframes that make the interaction decisions behind the
+      <a href="../moviemaker-functional-specification.md">functional specification</a> and the
+      <a href="../moviemaker-architecture.md">architecture</a> visible. They show structure and behavior, not visual design.
+      Terms follow the <a href="../moviemaker-glossary.md">glossary</a>.</p>
+    <p class="row"><span class="n">1</span> Numbered markers point to notes below each wireframe.
+      <span style="display:inline-grid;place-items:center;width:20px;height:20px;border-radius:4px;background:var(--sel);color:#fff;font-weight:700;font-size:12px">?</span>
+      Blue markers are open questions to decide.</p>
+  </header>
+
+  <div class="cards">
+    <div class="card">
+      <h2><a href="desktop-storyboard.html">Desktop — Storyboard view</a></h2>
+      <p>Main window: media library, preview, properties, and the storyboard. The default view for simple slideshows.</p>
+      <p class="small muted">Covers: window layout, transition ownership, minimum durations, background jobs, missing media.</p>
+    </div>
+    <div class="card">
+      <h2><a href="desktop-timeline.html">Desktop — Timeline view</a></h2>
+      <p>The same project in the timeline: transition overlaps, captions, narration anchors, music, ducking.</p>
+      <p class="small muted">Covers: lanes, soft anchors, notices, diagnostics.</p>
+    </div>
+    <div class="card">
+      <h2><a href="desktop-dialogs.html">Desktop — Dialogs and feedback</a></h2>
+      <p>Export, relink, Fit to Music failure, unsaved work recovery, and the diagnostics panel.</p>
+      <p class="small muted">Covers: export presets and progress, error and notice patterns.</p>
+    </div>
+    <div class="card">
+      <h2><a href="mobile.html">Android — Editor screens</a></h2>
+      <p>Project list, editor with storyboard strip, transition sheet, trim and speed, and the audio view.</p>
+      <p class="small muted">Covers: touch gestures, bottom sheets, app media folder, narration recording.</p>
+    </div>
+  </div>
+</div>
+</body>
+</html>

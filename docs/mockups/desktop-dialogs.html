@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>MovieMaker — Desktop dialogs and feedback</title>
+  <link rel="stylesheet" href="wireframe.css">
+  <style>
+    .grid { display: grid; grid-template-columns: repeat(2, 560px); gap: 28px; align-items: start; }
+    .item h3 { margin: 0 0 8px; font-size: 14px; display: flex; gap: 8px; align-items: center; }
+    .radio { display: grid; grid-template-columns: 18px 1fr auto; gap: 8px; align-items: center; padding: 6px 8px; border: 1.5px solid var(--soft); border-radius: 4px; }
+    .radio.on { border-color: var(--ink); }
+    .radio.off { color: #aaa; }
+    .radio i { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--line); display: block; }
+    .radio.on i { box-shadow: inset 0 0 0 3px #fff; background: var(--ink); }
+    .step { display: grid; grid-template-columns: 18px 1fr auto; gap: 8px; align-items: center; }
+    .tbl { display: grid; grid-template-columns: 110px 1fr auto; gap: 6px 10px; align-items: center; font-size: 12px; }
+    .tbl .h { font-weight: 600; color: #666; font-size: 11px; text-transform: uppercase; }
+    .diag { display: grid; grid-template-columns: 18px 1fr auto; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--soft); }
+  </style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <nav><a href="index.html">← All wireframes</a></nav>
+    <h1>Desktop — Dialogs and feedback</h1>
+    <p>Modal dialogs for export, relinking, failures, and recovery, and the non-modal feedback patterns: toasts for automatic adjustments and the diagnostics panel. Android uses the same content in full-screen sheets.</p>
+  </header>
+
+  <div class="grid">
+    <!-- Export setup -->
+    <div class="item">
+      <h3><span class="n">1</span> Export: choose a preset</h3>
+      <div class="dialog">
+        <div class="title">Export movie</div>
+        <div class="body">
+          <div class="panel-title">Export preset</div>
+          <div class="radio on"><i></i><span><b>1080p · 30 fps · MP4</b> <span class="muted">H.264, AAC</span> <span class="chip">Recommended</span></span><span class="muted">≈ 45 MB</span></div>
+          <div class="radio"><i></i><span><b>4K · 30 fps · MP4</b> <span class="muted">H.264, AAC</span></span><span class="muted">≈ 160 MB</span></div>
+          <div class="radio"><i></i><span><b>720p · 30 fps · MP4</b> <span class="muted">H.264, AAC</span></span><span class="muted">≈ 25 MB</span></div>
+          <div class="radio off"><i style="border-color:#ccc"></i><span><b>4K · 60 fps · MP4</b> — not supported on this device</span><span></span></div>
+          <div class="small muted">Shape: 16:9 from the project. The preset sets the resolution.</div>
+          <div class="row"><span style="width:60px">Save to</span><span class="field grow">C:\Users\me\Videos\Summer 2026.mp4</span><span class="btn">Browse…</span></div>
+          <div class="box small" style="background:var(--fill)">Before rendering, 1 intermediate and 2 audio preparations will finish. <span class="n">2</span></div>
+        </div>
+        <div class="actions"><span class="btn">Cancel</span><span class="btn primary">Export</span></div>
+      </div>
+    </div>
+
+    <!-- Export progress -->
+    <div class="item">
+      <h3><span class="n">3</span> Export: progress</h3>
+      <div class="dialog">
+        <div class="title">Exporting “Summer 2026.mp4”</div>
+        <div class="body">
+          <div class="step"><span>✓</span><span>Prepare audio</span><span class="muted">2 of 2</span></div>
+          <div class="step"><span>✓</span><span>Create intermediate for VID_0112</span><span class="muted">done</span></div>
+          <div class="step"><span>▶</span><span class="bold">Render and encode</span><span class="muted">frame 1 320 of 3 150</span></div>
+          <div class="progress" style="--v:42%"></div>
+          <div class="row between small"><span>42%</span><span class="muted">About 1 min left</span></div>
+          <div class="row"><div class="thumb" style="width:160px;height:90px"></div><span class="small muted">Current frame. The computer stays awake until export ends.</span></div>
+        </div>
+        <div class="actions"><span class="btn">Cancel export</span></div>
+      </div>
+    </div>
+
+    <!-- Relink -->
+    <div class="item">
+      <h3><span class="n">4</span> Relink missing media</h3>
+      <div class="dialog">
+        <div class="title">2 media files can't be found</div>
+        <div class="body">
+          <div class="tbl">
+            <span class="h">File</span><span class="h">Status</span><span></span>
+            <span class="bold">IMG_2051.jpg</span><span>Found by content in <i>D:\Photos\Backup\</i></span><span class="chip on">✓ Use</span>
+            <span class="bold">Waves.m4a</span><span class="muted">Not found. Last seen in <i>C:\Music\</i></span><span class="btn">Locate…</span>
+          </div>
+          <span class="btn" style="align-self:flex-start">Search another folder…</span>
+          <div class="small muted">Files are matched by content, so renamed or moved files are found. Clip edits are kept.</div>
+        </div>
+        <div class="actions"><span class="btn">Keep missing</span><span class="btn primary">Relink 1 file</span></div>
+      </div>
+    </div>
+
+    <!-- Fit to Music failure -->
+    <div class="item">
+      <h3><span class="n">5</span> Fit to Music not possible</h3>
+      <div class="dialog">
+        <div class="title">Can't fit the pictures to the music</div>
+        <div class="body">
+          <div>The music lasts <b>0:18.0</b>. Each photo would get <b>2.4 s</b>, but <b>IMG_2041</b> needs at least <b>2.6 s</b> for its transitions.</div>
+          <div class="small muted">Try shorter transitions, fewer or shorter video clips, or more music. Nothing was changed.</div>
+          <details class="small"><summary>How this was calculated</summary>
+            18.0 s music − 11.0 s video + 5.5 s transition overlap − 3.0 s title = 9.5 s ÷ 4 photos = 2.4 s
+          </details>
+        </div>
+        <div class="actions"><span class="btn">Select IMG_2041</span><span class="btn primary">OK</span></div>
+      </div>
+    </div>
+
+    <!-- Recovery -->
+    <div class="item">
+      <h3><span class="n">6</span> Restore unsaved work</h3>
+      <div class="dialog">
+        <div class="title">Restore unsaved work?</div>
+        <div class="body">
+          <div>MovieMaker closed before “Summer 2026” was saved. A recovery copy from today at 14:32 has changes that are not in the saved file.</div>
+          <div class="row"><div class="thumb" style="width:120px;height:68px"></div><div class="small muted">Saved file: today 14:05<br>Recovery copy: today 14:32</div></div>
+        </div>
+        <div class="actions"><span class="btn">Discard recovery copy</span><span class="btn primary">Restore</span></div>
+      </div>
+    </div>
+
+    <!-- Diagnostics panel -->
+    <div class="item">
+      <h3><span class="n">7</span> Diagnostics panel</h3>
+      <div class="dialog">
+        <div class="title row between"><span>Diagnostics (2)</span><span class="muted">✕</span></div>
+        <div class="body" style="gap:0">
+          <div class="diag"><span style="color:#b07000">⚠</span><span>IMG_2051.jpg is missing. A grey placeholder is shown.</span><span class="btn">Relink…</span></div>
+          <div class="diag"><span style="color:#b07000">⚠</span><span>IMG_2033 uses transition “Heart” from a newer version of MovieMaker. A hard cut is shown.</span><span class="btn">Select clip</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toasts -->
+    <div class="item" style="grid-column: 1 / -1">
+      <h3><span class="n">8</span> Toasts for automatic adjustments</h3>
+      <div class="col" style="max-width:640px">
+        <div class="toast"><span>Caption “Beach day” was shortened to end where “Sunset” starts.</span><span class="grow"></span><span class="btn">Undo</span><span>✕</span></div>
+        <div class="toast"><span>The transitions of VID_0112 were shortened to fit its new length.</span><span class="grow"></span><span class="btn">Undo</span><span>✕</span></div>
+        <div class="toast" style="border-left:6px solid var(--warn)"><span>Narration “Narr 03” was removed because it ended up under “Narr 02”.</span><span class="grow"></span><span class="btn">Undo</span><span>✕</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notes">
+    <div>
+      <h2>Notes</h2>
+      <ol>
+        <li><span class="n">1</span><span><b>Presets only.</b> The list comes from the capability profile. Unsupported presets stay visible but disabled, with the reason. Size estimates come from preset bitrates.</span></li>
+        <li><span class="n">2</span><span><b>Pending work.</b> Jobs the export needs are listed before it starts, so a long wait isn't a surprise.</span></li>
+        <li><span class="n">3</span><span><b>Progress.</b> Steps, then frame-based progress and time left. Cancel deletes the partial file. On Android this is a full screen that must stay in the foreground.</span></li>
+        <li><span class="n">4</span><span><b>Relink.</b> Opens when a project has missing files, or from the status bar. Matches found by fingerprint are pre-selected.</span></li>
+        <li><span class="n">5</span><span><b>Failure messages</b> say what happened, why, and what to try, and confirm that nothing changed. The calculation is available but collapsed.</span></li>
+        <li><span class="n">6</span><span><b>Recovery</b> appears at startup when the autosave copy is newer than the saved file.</span></li>
+        <li><span class="n">7</span><span><b>Diagnostics</b> never block preview or export. Each one links to the fix.</span></li>
+        <li><span class="n">8</span><span><b>Toasts</b> report adjustments the editor made on its own. Each has Undo, which reverts the whole command. Removals use the warning style.</span></li>
+      </ol>
+    </div>
+    <div>
+      <h2>Open questions</h2>
+      <ul class="q">
+        <li><span>Export: presets only (shown), or also an "Advanced" section with bitrate and frame rate?</span></li>
+        <li><span>Should relinking happen silently when exactly one match is found in the project folder?</span></li>
+        <li><span>Fit to Music failure: offer an automatic fix, such as shortening all transitions?</span></li>
+        <li><span>Fit to Music: how do text clips count (shown here keeping their duration)? This is open in spec §9.</span></li>
+        <li><span>Keep a history of past toasts, for example a notification list in the status bar?</span></li>
+      </ul>
+    </div>
+  </div>
+</div>
+</body>
+</html>

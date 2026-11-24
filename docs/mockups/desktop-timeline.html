@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>MovieMaker — Desktop timeline view</title>
+  <link rel="stylesheet" href="wireframe.css">
+  <style>
+    .main { display: grid; grid-template-columns: 220px 1fr 300px; min-height: 0; }
+    .library { border-right: 1.5px solid var(--soft); padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+    .lib-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .lib-grid .thumb { aspect-ratio: 4 / 3; }
+    .preview { padding: 10px; background: var(--fill); display: flex; flex-direction: column; gap: 8px; align-items: center; }
+    .canvas { position: relative; width: 480px; aspect-ratio: 16 / 9; background: #111; border: 1.5px solid var(--line); display: grid; place-items: center; }
+    .props { border-left: 1.5px solid var(--soft); padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+    .props .kv { display: grid; grid-template-columns: 88px 1fr; gap: 6px; align-items: center; }
+
+    .tl { border-top: 1.5px solid var(--soft); display: flex; flex-direction: column; }
+    .tl-toolbar { padding: 6px 12px; display: flex; gap: 8px; align-items: center; border-bottom: 1.5px solid var(--soft); }
+    .tl-body { display: grid; grid-template-columns: 150px 1fr; }
+    .heads { border-right: 1.5px solid var(--soft); }
+    .head { display: flex; align-items: center; gap: 6px; padding: 0 8px; border-bottom: 1px solid var(--soft); font-size: 12px; }
+    .head .m { border: 1px solid var(--line); border-radius: 3px; font-size: 10px; padding: 0 4px; }
+    .lanes { position: relative; overflow: hidden; padding-left: 10px; }
+    .lanes-inner { position: relative; width: 960px; height: 262px; }
+    .lane { position: absolute; left: 0; right: -200px; border-bottom: 1px solid var(--soft); }
+    .ruler { top: 0; height: 24px; background: var(--fill); }
+    .tick { position: absolute; bottom: 0; width: 1px; height: 6px; background: var(--line); }
+    .tick.major { height: 10px; }
+    .tick span { position: absolute; bottom: 10px; left: 3px; font-size: 10px; color: #555; }
+    .clip { position: absolute; border: 1.5px solid var(--line); border-radius: 3px; background: #fff; font-size: 11px; padding: 2px 5px; overflow: hidden; white-space: nowrap; }
+    .clip.pic { top: 4px; height: 52px; display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-end; background-color: #eee; }
+    .clip.pic > span { position: relative; z-index: 1; background: rgba(255, 255, 255, .85); padding: 0 3px; border-radius: 2px; }
+    .clip.pic .ov { position: absolute; top: 0; bottom: 0; left: 0; border-right: 1.5px dashed var(--line); background-color: rgba(255, 255, 255, .6); display: grid; place-items: center; font-size: 10px; font-weight: 600; }
+    .clip.cap { top: 6px; height: 24px; background: #fff8e1; }
+    .clip.aud { top: 5px; height: 20px; background: repeating-linear-gradient(90deg, #ccc 0 1px, transparent 1px 3px), #f6f6f6; }
+    .clip.nar { top: 6px; height: 24px; background: repeating-linear-gradient(90deg, #ccc 0 1px, transparent 1px 3px), #eef6ff; }
+    .clip.mus { top: 4px; height: 40px; background: repeating-linear-gradient(90deg, #d6d6d6 0 1px, transparent 1px 3px), #f6f6f6; }
+    .clip.sel { outline: 3px solid var(--sel); outline-offset: 1px; }
+    .playhead { position: absolute; top: 0; bottom: 0; width: 2px; background: #e03131; z-index: 10; }
+    .playhead::before { content: ""; position: absolute; top: 0; left: -5px; border: 6px solid transparent; border-top-color: #e03131; }
+    .anchor-v { position: absolute; border-left: 2px dashed var(--sel); z-index: 9; }
+    .anchor-h { position: absolute; border-top: 2px dashed var(--sel); z-index: 9; }
+    .anchor-dot { position: absolute; width: 10px; height: 10px; background: var(--sel); transform: rotate(45deg); z-index: 11; }
+    .toast-pos { position: absolute; right: 16px; bottom: 36px; z-index: 30; }
+  </style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <nav><a href="index.html">← All wireframes</a></nav>
+    <h1>Desktop — Timeline view</h1>
+    <p>The same project as the <a href="desktop-storyboard.html">storyboard view</a>, at 44 px per second. Narration clip <i>Narr 02</i> is selected, so its anchor is shown. Timing follows architecture §5.2: <code>start(i) = start(i−1) + duration(i−1) − transition(i)</code>.</p>
+  </header>
+
+  <div class="frame desktop" style="height: 820px">
+    <div class="titlebar"><span>MovieMaker — Summer 2026 •</span><span class="muted">—&nbsp;&nbsp;□&nbsp;&nbsp;✕</span></div>
+    <div class="menubar"><span>File</span><span>Edit</span><span>View</span><span>Insert</span><span>Clip</span><span>Audio</span><span>Export</span><span>Help</span></div>
+    <div class="toolbar">
+      <span class="btn">+ Import</span>
+      <span class="btn">● Record ▾</span>
+      <span class="sep"></span>
+      <span class="btn">T Add title</span>
+      <span class="btn">CC Add caption</span>
+      <span class="sep"></span>
+      <span class="btn ghost">↶ Undo</span>
+      <span class="btn ghost">↷ Redo</span>
+      <span class="sep"></span>
+      <span class="btn">♪ Fit to Music</span>
+      <span class="grow"></span>
+      <span class="seg"><span>Storyboard</span><span class="on">Timeline</span></span>
+      <span class="btn">16:9 ▾</span>
+      <span class="btn primary">Export…</span>
+    </div>
+
+    <div class="main">
+      <div class="library">
+        <div class="row between"><span class="panel-title">Media library</span><span class="btn">+</span></div>
+        <div class="lib-grid">
+          <div class="thumb"></div><div class="thumb"></div><div class="thumb"></div>
+          <div class="thumb video"></div><div class="thumb"></div><div class="thumb"><span class="badge warn" style="right:2px;top:2px">!</span></div>
+        </div>
+        <div class="col" style="gap:4px">
+          <div class="row between box" style="padding:3px 6px"><span>♪ Summer song</span><span class="muted">3:12</span></div>
+          <div class="row between box" style="padding:3px 6px"><span>♪ Waves</span><span class="muted">2:05</span></div>
+        </div>
+      </div>
+
+      <div class="preview">
+        <div class="canvas">
+          <div class="thumb" style="height:100%;aspect-ratio:4/3;border-color:#666"></div>
+          <div style="position:absolute;width:70%;left:15%;top:44%;color:#fff;text-align:center;font-weight:600">Beach day</div>
+        </div>
+        <div class="row" style="width:480px">
+          <span class="btn ghost">⏮</span><span class="btn round">▶</span><span class="btn ghost">⏭</span>
+          <span class="bold">00:06.20</span><span class="muted">/ 00:21.50</span>
+          <span class="grow"></span>
+          <span class="btn">Preview: Auto ▾</span>
+        </div>
+      </div>
+
+      <div class="props">
+        <div class="row between"><span class="panel-title">Narration clip</span><span class="muted small">Narr 02</span></div>
+        <div class="kv"><span>Anchored to</span><span class="row"><span class="field" style="border-color:var(--sel)">IMG_2050 +0.8 s</span><span class="n">4</span></span></div>
+        <div class="kv"><span></span><a href="#" class="small">Select anchor clip</a></div>
+        <div class="kv"><span>Start time</span><span class="field">00:13.30</span></div>
+        <div class="kv"><span></span><span class="small muted">Changing it re-anchors to the clip at that time.</span></div>
+        <div class="kv"><span>In / Out</span><span class="row"><span class="field">0:00.0</span><span class="field">0:04.0</span></span></div>
+        <div class="kv"><span>Fade in</span><span class="field">0.3 s</span></div>
+        <div class="kv"><span>Fade out</span><span class="field">0.5 s</span></div>
+        <div class="kv"><span>Volume</span><span class="row"><div class="slider grow" style="--v:50%"></div><span>100%</span></span></div>
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="tl">
+      <div class="tl-toolbar">
+        <span class="btn">✂ Split</span>
+        <span class="btn">Delete</span>
+        <span class="sep" style="width:1px;align-self:stretch;background:var(--soft)"></span>
+        <span>Snap</span><span class="toggle on"></span>
+        <span class="grow"></span>
+        <span class="btn ghost">−</span><div class="slider" style="width:120px;--v:40%"></div><span class="btn ghost">+</span>
+        <span class="btn">Fit timeline</span>
+      </div>
+
+      <div class="tl-body">
+        <div class="heads">
+          <div class="head" style="height:24px;background:var(--fill)"></div>
+          <div class="head" style="height:36px"><span class="grow">CC Captions</span><span class="n">3</span></div>
+          <div class="head" style="height:60px"><span class="grow bold">Pictures</span><span class="n">1</span></div>
+          <div class="head" style="height:30px"><span class="grow">Video audio</span><span class="m">M</span><span class="n">5</span></div>
+          <div class="head" style="height:36px"><span class="grow">Narration</span><span class="m">M</span><span class="btn round" style="padding:0 6px;color:#e03131">●</span><span class="n">6</span></div>
+          <div class="head" style="height:48px;flex-direction:column;align-items:stretch;justify-content:center;gap:0">
+            <span class="row"><span class="grow">♪ Music 1</span><span class="m">M</span><span class="n">8</span></span>
+            <div class="slider" style="--v:50%;margin:6px 4px"></div>
+          </div>
+          <div class="head" style="height:28px"><span class="muted">+ Add music track</span></div>
+        </div>
+
+        <div class="lanes">
+          <div class="lanes-inner">
+            <!-- Ruler: 44 px per second -->
+            <div class="lane ruler">
+              <div class="tick major" style="left:0"><span>0:00</span></div>
+              <div class="tick" style="left:44px"></div>
+              <div class="tick major" style="left:88px"><span>0:02</span></div>
+              <div class="tick" style="left:132px"></div>
+              <div class="tick major" style="left:176px"><span>0:04</span></div>
+              <div class="tick" style="left:220px"></div>
+              <div class="tick major" style="left:264px"><span>0:06</span></div>
+              <div class="tick" style="left:308px"></div>
+              <div class="tick major" style="left:352px"><span>0:08</span></div>
+              <div class="tick" style="left:396px"></div>
+              <div class="tick major" style="left:440px"><span>0:10</span></div>
+              <div class="tick" style="left:484px"></div>
+              <div class="tick major" style="left:528px"><span>0:12</span></div>
+              <div class="tick" style="left:572px"></div>
+              <div class="tick major" style="left:616px"><span>0:14</span></div>
+              <div class="tick" style="left:660px"></div>
+              <div class="tick major" style="left:704px"><span>0:16</span></div>
+              <div class="tick" style="left:748px"></div>
+              <div class="tick major" style="left:792px"><span>0:18</span></div>
+              <div class="tick" style="left:836px"></div>
+              <div class="tick major" style="left:880px"><span>0:20</span></div>
+              <div class="tick" style="left:924px"></div>
+            </div>
+
+            <!-- Captions -->
+            <div class="lane" style="top:24px;height:36px">
+              <div class="clip cap" style="left:220px;width:330px">CC Beach day</div>
+              <div class="clip cap" style="left:550px;width:132px">CC Sunset</div>
+            </div>
+
+            <!-- Pictures: one lane, incoming clips drawn over the end of the outgoing clip -->
+            <div class="lane" style="top:60px;height:60px">
+              <div class="clip pic" style="left:0;width:132px;background:#333;color:#fff;align-items:flex-start;padding-left:26px">
+                <div class="ov hatch" style="width:22px;background-color:rgba(0,0,0,.5)"></div>
+                <span style="background:transparent">Title</span>
+              </div>
+              <span class="pin" style="left:4px;top:-12px"><span class="n">2</span></span>
+              <div class="clip pic thumb" style="left:88px;width:176px">
+                <div class="ov hatch" style="width:44px">⇄ 1.0</div>
+                <span>IMG_2033 · 4.0 s</span>
+              </div>
+              <div class="clip pic thumb" style="left:198px;width:132px">
+                <div class="ov hatch" style="width:66px">⇄ 1.5</div>
+                <span>IMG_2041</span>
+              </div>
+              <div class="clip pic thumb video" style="left:286px;width:264px">
+                <div class="ov hatch" style="width:44px">⇄ 1.0</div>
+                <span>VID_0112 · 6.0 s · 2×</span>
+              </div>
+              <div class="clip pic thumb" style="left:550px;width:132px;outline:2px dashed var(--sel);outline-offset:1px">
+                <span>IMG_2050 · 3.0 s</span>
+              </div>
+              <div class="clip pic thumb" style="left:638px;width:132px">
+                <div class="ov hatch" style="width:44px">⇄ 1.0</div>
+                <span>IMG_2051 !</span>
+              </div>
+              <div class="clip pic thumb video" style="left:726px;width:220px">
+                <div class="ov hatch" style="width:44px">⇄ 1.0</div>
+                <span>VID_0120 · 5.0 s</span>
+              </div>
+              <span class="pin" style="left:228px;top:-12px"><span class="n">1</span></span>
+              <span class="pin" style="left:540px;top:44px"><span class="n">11</span></span>
+            </div>
+
+            <!-- Embedded video audio -->
+            <div class="lane" style="top:120px;height:30px">
+              <div class="clip aud" style="left:286px;width:264px;padding-left:48px;clip-path:polygon(0 100%,44px 0,100% 0,100% 100%)">VID_0112 audio</div>
+              <div class="clip aud" style="left:726px;width:220px;padding-left:48px;clip-path:polygon(0 100%,44px 0,100% 0,100% 100%)">VID_0120 audio</div>
+            </div>
+
+            <!-- Narration -->
+            <div class="lane" style="top:150px;height:36px">
+              <div class="clip nar" style="left:132px;width:154px">Narr 01</div>
+              <div class="clip nar sel" style="left:585px;width:176px">Narr 02</div>
+            </div>
+
+            <!-- Music with volume line showing ducking -->
+            <div class="lane" style="top:186px;height:48px">
+              <div class="clip mus" style="left:0;width:550px">♪ Summer song</div>
+              <div class="clip mus" style="left:550px;width:396px">♪ Waves</div>
+              <svg width="946" height="48" style="position:absolute;left:0;top:0" aria-hidden="true">
+                <polyline points="0,10 121,10 132,30 286,30 297,10 574,10 585,30 761,30 772,10 946,10" fill="none" stroke="#e8590c" stroke-width="2"/>
+              </svg>
+              <span class="pin" style="left:300px;top:20px"><span class="n">7</span></span>
+            </div>
+
+            <div class="lane" style="top:234px;height:28px"></div>
+
+            <!-- Anchor of the selected narration clip -->
+            <div class="anchor-dot" style="left:545px;top:111px"></div>
+            <div class="anchor-v" style="left:549px;top:118px;height:50px"></div>
+            <div class="anchor-h" style="left:549px;top:168px;width:36px"></div>
+            <div class="small" style="position:absolute;left:546px;top:170px;color:var(--sel);font-weight:600;z-index:12">+0.8 s</div>
+            <span class="pin" style="left:520px;top:150px"><span class="n">4</span></span>
+
+            <div class="playhead" style="left:273px"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast-pos">
+      <div class="toast"><span class="n" style="box-shadow:none">9</span><span>Caption “Beach day” was shortened to end where “Sunset” starts.</span><span class="btn">Undo</span><span>✕</span></div>
+    </div>
+
+    <div class="statusbar">
+      <span>Saved · Autosave on</span>
+      <span style="color:#b07000;font-weight:600">⚠ 2 diagnostics</span><span class="n">10</span>
+      <span class="grow"></span>
+      <span>Preview: proxy</span>
+    </div>
+  </div>
+
+  <div class="notes">
+    <div>
+      <h2>Notes</h2>
+      <ol>
+        <li><span class="n">1</span><span><b>Pictures lane.</b> One lane. Each incoming clip is drawn over the end of the outgoing clip, and the hatched overlap shows the transition and its duration. Dragging the hatched area's edge changes the duration, within the minimum-duration limits.</span></li>
+        <li><span class="n">2</span><span><b>Transition from the background.</b> The first clip's transition is darker and does not shift timing.</span></li>
+        <li><span class="n">3</span><span><b>Captions lane.</b> Above the pictures, because captions render above them. One caption can span several clips.</span></li>
+        <li><span class="n">4</span><span><b>Anchor link.</b> For the selected caption or narration clip, a dashed link runs from the anchor clip's start to the item, labelled with the offset. The anchor clip gets a dashed outline. Dragging the item re-anchors it to the clip under its new start.</span></li>
+        <li><span class="n">5</span><span><b>Video audio.</b> Embedded audio of video clips, with its crossfade at transitions. It can be muted per lane or disabled per clip.</span></li>
+        <li><span class="n">6</span><span><b>Narration.</b> One lane. The red button records at the playhead, and the recording is anchored to the clip there.</span></li>
+        <li><span class="n">7</span><span><b>Ducking.</b> The orange volume line drops while narration plays, ramping down just before it starts and up after it ends. A gap between narration clips shorter than the ramps stays ducked.</span></li>
+        <li><span class="n">8</span><span><b>Music tracks.</b> Absolute times. Each track has mute and volume. Overlapping songs need a second track ("+ Add music track").</span></li>
+        <li><span class="n">9</span><span><b>Notice with Undo.</b> Automatic adjustments, such as a shortened caption, a shortened transition, or a removed narration clip, show a toast that disappears after a few seconds. Undo reverts the whole command.</span></li>
+        <li><span class="n">10</span><span><b>Diagnostics.</b> Compiler diagnostics, such as an unknown preset or a missing file, are counted in the status bar. Clicking opens the <a href="desktop-dialogs.html">diagnostics panel</a>.</span></li>
+        <li><span class="n">11</span><span><b>Trim and duration.</b> Dragging a clip's right edge trims a video or changes a photo's duration. Later clips ripple, and anchored items follow.</span></li>
+      </ol>
+    </div>
+    <div>
+      <h2>Open questions</h2>
+      <ul class="q">
+        <li><span>Single pictures lane with hatched overlaps (shown), or A/B lanes that alternate clips on two rows so overlaps are easier to see?</span></li>
+        <li><span>Show anchor links only for the selection (shown), or for all items, or on hover?</span></li>
+        <li><span>Should dragging captions and narration snap to clip starts?</span></li>
+        <li><span>Embedded video audio: separate lane (shown), or drawn inside the video clip?</span></li>
+        <li><span>Is the per-clip volume line editable directly on the timeline, or only in properties?</span></li>
+      </ul>
+    </div>
+  </div>
+</div>
+</body>
+</html>
