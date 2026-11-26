@@ -2,7 +2,7 @@
 
 **Status:** Draft · 23 November 2026
 
-This document describes the technical architecture of the intended MovieMaker product on desktop and Android. It implements the capabilities in the [functional specification](moviemaker-functional-specification.md) and uses the terms defined in the [glossary](moviemaker-glossary.md). Release priorities are out of scope. Section 15 lists the risks that early prototypes must validate, and section 16 defines the first end-to-end build.
+This document describes the technical architecture of the intended MovieMaker product on desktop and Android. It implements the capabilities in the [functional specification](moviemaker-functional-specification.md) and uses the terms defined in the [glossary](moviemaker-glossary.md). Release priorities are out of scope. Section 15 lists the risks that early prototypes must validate, and section 16 defines the first end-to-end build. Decisions with lasting impact are recorded as [architecture decision records](adrs/README.md), and each section governed by one links to it.
 
 ## 1. Goals and constraints
 
@@ -13,13 +13,13 @@ This document describes the technical architecture of the intended MovieMaker pr
 | Preview matches export | Preview and export call the same renderer and the same audio mixer with the same edit plan. Preview uses proxies, so the match is in content and timing, not pixel for pixel. |
 | Projects move between devices | The project model is resolution-independent, references assets by content fingerprint, and uses bundled fonts and stable preset IDs. |
 | Separate desktop and mobile UIs | UIs are separate React apps. The project model, state store, engine, and media layers are shared. |
-| Personal and learning project that may become open source | Prefer permissively licensed dependencies. Avoid GPL components. LGPL components run as separate processes or replaceable modules. |
+| Personal and learning project that may become open source | Prefer permissively licensed dependencies. Avoid GPL components. LGPL components run as separate processes or replaceable modules ([ADR-0006](adrs/0006-licensing-policy-for-dependencies.md)). |
 
 ## 2. Technology choices
 
 | Concern | Choice | Notes |
 |---|---|---|
-| Language | TypeScript (strict) | Kotlin for Android plugins only. |
+| Language | TypeScript (strict) | Kotlin for Android plugins only. The TypeScript version is held to the range typescript-eslint supports. |
 | UI | React | One React app per platform. |
 | State | Framework-agnostic store (for example Zustand) with immutable updates (for example Immer) | Shared by both UIs. |
 | Desktop shell | Electron | Ships its own Chromium, so WebCodecs, WebGL2, and OffscreenCanvas behave consistently on every desktop OS. |
@@ -33,14 +33,11 @@ This document describes the technical architecture of the intended MovieMaker pr
 | HEIC decoding | libheif compiled to WASM on desktop, `ImageDecoder` on Android | libheif and libde265 are LGPL and ship as a replaceable module. |
 | Build | pnpm workspaces and Vite | |
 | Tests | Vitest and Playwright | |
+| Lint and format | ESLint with typescript-eslint, and Prettier | ESLint enforces the dependency rules that TypeScript cannot (section 4). |
 
-**Alternatives considered**
+Versions are recorded in the root [package.json](../package.json), [pnpm-workspace.yaml](../pnpm-workspace.yaml), and [pnpm-lock.yaml](../pnpm-lock.yaml), not here.
 
-- **Tauri** uses the system webview. WebKitGTK on Linux has no WebCodecs and macOS WebKit support is partial, so the shared renderer could not run everywhere.
-- **A native core in Rust or C++ with FFmpeg** would perform better but requires cross-compiling, N-API and JNI bindings, and FFmpeg licensing work. Section 11 uses an FFmpeg sidecar on desktop only for sources and codecs that WebCodecs cannot handle.
-- **Flutter** would share the UI, which is not a goal here, and still requires native media code on each platform.
-- **A native Android engine** (Media3 Transformer and Composition with OpenGL ES effects) would avoid WebView limits but needs its own renderer. It remains the fallback if the Android prototypes fail (section 13.3).
-- **A web app (PWA) only** would avoid installers, but file access and codec support vary by browser. The playground can still be published as a Chromium-only web version (section 13.1).
+**Decisions.** Hosting one TypeScript engine in Electron and Capacitor, rather than Tauri, a native Rust or C++ core, Flutter, a native Android engine, or a web app only, is recorded in [ADR-0001](adrs/0001-shared-typescript-engine-electron-capacitor.md). The native Android engine remains the fallback (section 13.3), and the playground can still be published as a Chromium-only web version (section 13.1).
 
 ## 3. System overview
 
@@ -58,8 +55,10 @@ flowchart TB
         AUD[audio<br/>mixer, envelopes, time-stretch]
         MED[media<br/>probe, decode, encode, mux, proxies, caches]
         PLAT[platform<br/>adapter interfaces]
+        FONTS[fonts<br/>bundled font files, font catalog]
     end
-    subgraph Native["Platform adapter implementations"]
+    subgraph Native["Platform adapter implementations, injected by the apps at startup"]
+        BR[Browser implementation<br/>platform/browser, for the playground]
         EL[Electron main process]
         AN[Android Kotlin plugins]
     end
@@ -68,17 +67,28 @@ flowchart TB
     DUI --> ST
     MUI --> ST
     UIK --> ST
+    UIK -->|catalog only| ENG
+    UIK --> FONTS
     ST --> CORE
     ST --> ENG
     ST --> AUD
+    ST --> MED
+    ST --> PLAT
     ENG --> CORE
+    ENG --> PLAT
+    ENG --> FONTS
     AUD --> CORE
-    ENG --> MED
-    AUD --> MED
+    AUD --> PLAT
+    MED --> CORE
     MED --> PLAT
+    ENG -.frame source implemented by.-> MED
+    AUD -.PCM reader implemented by.-> MED
+    PLAT -.implemented by.-> BR
     PLAT -.implemented by.-> EL
     PLAT -.implemented by.-> AN
 ```
+
+Solid arrows are imports and follow the dependency rules in section 4. Dotted arrows mean "implemented by" without an import. `engine` and `audio` declare the inputs they need as their own interfaces, such as the engine's frame source and the mixer's prepared-PCM reader. `media` implements them without importing `engine` or `audio`, and `app-state` or an app's worker start-up connects the two. The apps import every package and inject the platform implementations at startup. `core`, `platform`, and `fonts` import no other package.
 
 ### Data flow
 
@@ -93,7 +103,7 @@ flowchart LR
     EX --> A
 ```
 
-The project is the editable document. Every change produces a new **project revision**. A pure compiler turns each revision into an **edit plan**. Preview and export consume only edit plans. They never interpret the project directly.
+The project is the editable document. Every change produces a new **project revision**. A pure compiler turns each revision into an **edit plan**. Preview and export consume only edit plans. They never interpret the project directly ([ADR-0002](adrs/0002-edit-plan-shared-by-preview-and-export.md)).
 
 ## 4. Repository structure
 
@@ -118,14 +128,37 @@ easy-movie-maker/
 **Dependency rules**
 
 - `core` has no runtime dependencies on other packages, the DOM, or platform APIs.
-- `engine`, `audio`, and `media` depend on `core` and on `platform` interfaces, never on implementations.
-- `ui-kit` depends on `app-state` and on preset catalog metadata from `engine`. It holds no app layout.
-- Apps inject platform implementations at startup.
+- `platform` and `fonts` import no other package. The adapter interfaces therefore use their own types, not `core` types (section 13.1).
+- `engine` depends on `core`, on `platform` interfaces, and on `fonts`, which it loads into its worker (section 8.5).
+- `audio` and `media` depend on `core` and on `platform` interfaces.
+- `engine`, `audio`, and `media` never depend on a platform implementation, and `engine` and `audio` do not import `media`. They declare the inputs they need as their own interfaces, `media` implements them without importing `engine` or `audio`, and `app-state` or an app's worker start-up connects them (section 3).
+- `app-state` depends on `core`, `engine` (its root and its preset catalog), `audio`, `media`, and `platform` interfaces. It never depends on a platform implementation or on `fonts`.
+- `ui-kit` depends on `app-state`, on preset catalog metadata from `engine` (never the renderer), and on `fonts` for font pickers. It holds no app layout.
+- No other package imports `fonts`.
+- Apps may import every package and inject platform implementations at startup.
 - Presets have a single catalog in `engine`. It provides metadata such as ID, display name, family, parameter schema, and thumbnail to the UIs, and preset programs to the renderer.
+
+**Entry points and enforcement**
+
+- Packages are consumed as TypeScript source: each package's `exports` points at its `src/`, and there is no build per package.
+- Two subpath entry points make the rules above checkable: `@moviemaker/platform/browser` is the browser implementation of the platform interfaces, and `@moviemaker/engine/catalog` is the preset catalog metadata, the only part of `engine` that `ui-kit` imports.
+- **TypeScript** enforces two things. Through project references and each package's declared workspace dependencies, a package can import by name only the workspace packages it declares and references; TypeScript does not distinguish the entry points of a referenced package, and does not stop a relative path into another package. And `core` is compiled with a library list that has no DOM, for its source and its tests, and its source with no ambient types (its tests get Node's types). That configuration alone does not stop `core` from importing a third-party file that declares DOM or Node types, such as `typescript/lib/lib.dom` or `node`; lint does.
+- **ESLint alone** enforces the rest, in [eslint.config.js](../eslint.config.js), with the rules `moviemaker/package-boundary` and `moviemaker/entry-isolation` and `@typescript-eslint/triple-slash-reference`:
+  - **Allowlist.** Every specifier that is not a relative or absolute path must appear exactly in the allowlist of the file's group. Package source may import its own entry points and the `@moviemaker` entry points its rules above allow, and no third-party or Node specifier. Package tests (`*.test.*` files and `tests/`) may also import `vitest`. Apps may import every package entry point, and each app lists the third-party specifiers of each of its file groups; for the playground, `vitest` in unit tests, `@playwright/test` in golden-frame specs and the Playwright configuration, and `vite` in the Vite configuration. The comparison is exact: a subpath (`vite/client`), another letter case, a trailing slash, or a `..` segment is a different specifier and fails until it is listed. So `engine`, `audio`, and `media` cannot import `@moviemaker/platform/browser`, `ui-kit` cannot import the `engine` root, and a new third-party or Node import needs an allowlist edit; for a third-party package that edit accompanies the approval [AGENTS.md](../AGENTS.md) requires.
+  - **Paths.** A relative or absolute specifier fails if it contains a `node_modules` segment, or if it resolves outside the package or app root, before or after symbolic links are resolved. A backslash is read as a separator on every host.
+  - **Entry isolation.** Inside a package, the entry point that more packages may import must not reach the other one. The `entryIsolation` table lists one row per such pair, and `moviemaker/entry-isolation` enforces it: files under `platform`'s `src/` outside `src/browser/` may not import `src/browser/` by path or `@moviemaker/platform/browser` by name, and files under `engine`'s `src/catalog/` may not import the rest of `engine`'s `src/` by path or `@moviemaker/engine` by name. The other direction stays allowed: the browser implementation imports the interfaces, and the renderer reads the catalog. The rule checks the same import forms as the allowlist, resolves a path before and after symbolic links, and covers TypeScript and JavaScript files under the protected folder, tests included. It checks each import on its own and does not follow a chain of imports, and it checks only files under the protected folder. A file outside `src/`, such as one under the package's `tests/` folder or at its root, is neither protected nor part of the other entry point, and a protected file may import it by relative path. Such a file can reach the other entry point by name, because the allowlist lets a package import its own entry points, or by relative path, such as `./src/browser/index` from the root of `platform` or `../src/index` from `engine`'s `tests/`. A protected file can therefore reach the other entry point through it, and TypeScript accepts the chain. Q0.13 (section 17) asks whether to close these routes.
+  - **Directives.** `lib`, `path`, and `types` triple-slash directives are forbidden in package and app files, so none can add the DOM library, ambient types, or another package's files.
+  - **Coverage.** The allowlist and path checks cover TypeScript files anywhere in a package or app, and JavaScript files (`.js`, `.jsx`, `.mjs`, `.cjs`) under its `src/` and `tests/` and in the app configuration files it lists. Inline configuration comments are ignored in those files, so an `eslint-disable` comment cannot switch the rule off. Only `dist` at the root and at each package and app root, and `playwright-report` and `test-results` at each app root, are ignored. JavaScript files elsewhere in a package or app are not linted: such a file can import anything, and package source can import it by a relative path such as `../leak.js`, which stays inside the package.
+- Both rules check static imports and exports, `import()`, `import type` and `typeof import()`, `import x = require()`, and `require()`, when the specifier is a string literal or a template literal without expressions. Any other specifier is skipped, including a computed one and a string behind a type assertion (`'…' as string`). They do not check other ways of naming a module or path: `declare module` with a specifier, an `@jsxImportSource` pragma (effective only once a tsconfig sets `jsx`), `import.meta.resolve`, `import.meta.glob`, `new URL(…, import.meta.url)`, `vi.mock`, `vi.importActual`, `require.resolve`, and `createRequire`. They check imports, not globals: test files get Node's types, so Node globals such as `process` type-check there. They do not examine the imports inside third-party packages. A query or hash suffix on a specifier is not a way around them: TypeScript and Vite resolve the specifier to the same file.
+- **One configuration.** ESLint uses the nearest `eslint.config.*` above each linted file, so a configuration file inside a package, an app, or one of their folders would replace the root configuration there and switch these rules off without an error. A unit test in `tools/lint/` fails when any `eslint.config.*` other than the root one exists in the repository. It matches the file name in any letter case, because ESLint loads a configuration whose name differs only in case on Windows; on a case-sensitive file system, as on Linux, the test is therefore stricter than ESLint. It skips exactly the folders that ESLint ignores, except `docs/`: `node_modules` at any depth, `.git`, the root `prototypes/` and `dist`, `dist` at each package and app root, and `playwright-report` and `test-results` at each app root. It still searches `docs/`, which ESLint ignores, so it reports a configuration there that ESLint would never use. A second test asks ESLint whether each of a set of generated folder names, at the root, at package and app roots, and deeper, is ignored, and fails if the answer differs from the skip list. It fails `pnpm test`, not `pnpm lint`: until such a file is removed, lint and the editor still use it.
+- A package or app that is not listed in `eslint.config.js` is not checked at all, and a package with a second entry point gets no entry isolation without a row in `entryIsolation`; the [test instructions](../.github/instructions/tests.instructions.md) list where a new package or app is registered.
+- Regression tests in `tools/lint/` run ESLint with this configuration against violating and allowed imports at real package and app paths, as part of the unit tests. They prove that the cases they list are rejected or accepted under the current configuration, so a configuration change that reopens one of those cases fails the tests. A form without a case is not covered.
 
 ## 5. Project model
 
 ### 5.1 Time and space
+
+Time representation and derived sequence timing are recorded in [ADR-0003](adrs/0003-integer-microsecond-time-and-derived-sequence-timing.md).
 
 - **Time** is stored as integer microseconds, which matches WebCodecs timestamps and avoids floating-point drift. Ranges follow the glossary convention `[in, out)`.
 - **Frame rates** are rationals (`{ num: 30000, den: 1001 }`). Export frame *n* is at `round(n × 1 000 000 × den / num)` µs.
@@ -229,14 +262,14 @@ interface PresetRef { id: string; params?: Record<string, number | string | bool
 - **Transitions belong to the incoming clip and overlap the outgoing clip**, whatever its type (specification §5.1). The incoming clip starts `transition(i)` earlier, and the outgoing clip keeps playing underneath: video continues, and Pan & Zoom, effects, and text presets keep moving. The first clip's transition runs from the project background over the clip's opening portion and does not change timing.
 - **Every clip keeps a part without transitions.** A clip's effective duration must be at least `transition(i) + transition(i+1) + margin`, with a provisional margin of 0.1 s. Two transitions therefore never run at the same time. The UI limits transition and clip durations. When a trim, speed, or duration change breaks the rule, the same command scales the clip's two transitions down proportionally and the UI reports it. The compiler clamps the same way as a safety net and reports a diagnostic.
 - **Media fit resolves per clip.** A clip uses its own `fit`, or the project's `defaultFit` when `fit` is absent.
-- **Soft anchors.** Captions and narration clips store an anchor clip and an offset, not an absolute time. Their timeline start is `start(anchor) + offset`, so inserting, removing, reordering, or resizing clips moves them with their anchor, and their duration does not change. After every command, an item whose start no longer falls inside its anchor clip re-anchors to the clip that contains that time, or to the last clip with the offset clamped, so `0 ≤ offset < duration(anchor)` always holds. Moving an item re-anchors it to the clip at its new start. Splitting the anchor clip keeps the anchor on the first part, and the same rule moves items that start in the second part.
+- **Soft anchors.** Captions and narration clips store an anchor clip and an offset, not an absolute time ([ADR-0004](adrs/0004-soft-anchors-for-captions-and-narration.md)). Their timeline start is `start(anchor) + offset`, so inserting, removing, reordering, or resizing clips moves them with their anchor, and their duration does not change. After every command, an item whose start no longer falls inside its anchor clip re-anchors to the clip that contains that time, or to the last clip with the offset clamped, so `0 ≤ offset < duration(anchor)` always holds. Moving an item re-anchors it to the clip at its new start. Splitting the anchor clip keeps the anchor on the first part, and the same rule moves items that start in the second part.
 - **Removing a caption's anchor clip** removes the caption in the same command, so one undo restores both.
 - **Captions never overlap.** There is a single caption track. Caption commands reject edits that would overlap another caption. When a clip command (resize, reorder, insert) pushes a caption onto the next one, the same command shortens the earlier caption to end where the next one starts and the UI reports it. A caption pushed entirely under another is removed with a warning. Undo restores both cases.
 - **New captions** start at the clip where they are added (`offset` 0) and last as long as that clip. Their `content` is empty. The UI shows the placeholder "[Enter text here]" as a hint, and an empty caption renders nothing. The default text box is 70% of the canvas width, centered horizontally and vertically.
 - **Narration clips** keep their source range when they move. Removing the anchor clip keeps the narration clip and re-anchors it to the clip that takes the removed clip's place: the following clip, or the preceding one when the removed clip was last. Narration commands reject edits that would overlap another narration clip. When a clip command pushes a narration clip onto the next one, the same command moves the earlier clip's out point so it ends where the next one starts, and the UI reports it. A narration clip pushed entirely under another is removed with a warning. Undo restores both cases. Narration needs at least one visual clip, so removing the last visual clip also removes the narration, and undo restores it.
 - **Music clips** keep absolute timeline times. Only music commands and Fit to Music move them.
 - **Volume and ducking.** Video clips (embedded audio), audio clips, and tracks have a linear `volume` from 0 to 2, where 1 leaves the level unchanged. When `ducking.enabled` is set, the compiler lowers all music to `ducking.amount` of its level while any narration clip plays, with short ramps.
-- **Presets are referenced by stable, versioned ID** (for example `transition.wipe.bow-tie-horizontal@1`). A preset whose look changes gets a new version, and the app keeps the old versions, so existing projects render unchanged. If the app does not recognise an ID, it keeps the reference in the project file and renders a neutral fallback (hard cut or no effect) with a warning. This keeps projects readable across app versions and devices.
+- **Presets are referenced by stable, versioned ID** (for example `transition.wipe.bow-tie-horizontal@1`, [ADR-0007](adrs/0007-webgl2-renderer-with-data-only-presets.md)). A preset whose look changes gets a new version, and the app keeps the old versions, so existing projects render unchanged. If the app does not recognise an ID, it keeps the reference in the project file and renders a neutral fallback (hard cut or no effect) with a warning. This keeps projects readable across app versions and devices.
 - **Automatic Pan & Zoom resolves when applied.** The resolved rectangles are stored with the preset ID, so playback never depends on a random or device-specific choice.
 - **Visual effects stack.** The list is applied in order, and the UI can reorder it.
 - **Picture fades and audio fades are separate.** `entryFade` and `exitFade` are picture presets (specification §6). `audioFadeIn` and `audioFadeOut` affect only the embedded audio of a video clip (specification §7).
@@ -260,6 +293,8 @@ interface PresetRef { id: string; params?: Record<string, number | string | bool
 - **Clipboard (cut, copy, paste)** stores serialized clips together with their asset references, so pasting into another project can add the missing assets.
 
 ### 6.1 Project files and portability
+
+Fingerprint references and the Android app media folder are recorded in [ADR-0005](adrs/0005-fingerprint-asset-references-and-android-media-folder.md).
 
 - **Project file (`.mmproj`).** A single UTF-8 JSON file contains the project model. It references assets and does not contain them.
 - **Asset reference.** Each reference stores:
@@ -334,6 +369,8 @@ flowchart LR
 
 ### 8.4 Preset system
 
+Rendering presets as versioned data with no JavaScript is recorded in [ADR-0007](adrs/0007-webgl2-renderer-with-data-only-presets.md).
+
 Every transition, visual effect, Pan & Zoom preset, clip fade, and text entry or exit preset is a catalog entry. Preset definitions are data, not code:
 
 ```ts
@@ -362,7 +399,7 @@ The MIT-licensed gl-transitions collection is written in GLSL and can supply man
 
 - Text is laid out by a shared layout module (wrapping, alignment, line height) and rasterized with Canvas2D in the worker into cached textures. The cache key is content, style, and output scale.
 - Layout produces glyph runs, so `transform` presets can animate per glyph (Scroll, Swing Down) or the whole box (Fade, Zoom).
-- **Fonts are bundled.** The `fonts` package ships the font set in section 8.5.1 and loads it with the `FontFace` API. Projects reference `fontId`, never system fonts. Text then renders the same on Android and desktop.
+- **Fonts are bundled.** The `fonts` package ships the font set in section 8.5.1 and loads it with the `FontFace` API. `engine` imports it to load the set into its worker and resolve `fontId`, and `ui-kit` imports it for font pickers. Projects reference `fontId`, never system fonts. Text then renders the same on Android and desktop.
 
 #### 8.5.1 Bundled font set
 
@@ -399,6 +436,8 @@ The pipeline is 8-bit sRGB. HDR and 10-bit sources are converted to SDR during d
 | **I/O** | Media is read with range requests through a platform-provided URL or a reader (section 13), never loaded whole into memory. |
 
 ## 10. Audio
+
+One mixer for preview and export, fed by prepared PCM, is recorded in [ADR-0008](adrs/0008-shared-audio-mixer-with-prepared-pcm.md).
 
 ### 10.1 Sources and mix
 
@@ -465,7 +504,7 @@ sequenceDiagram
 - **Before encoding,** pending jobs that the plan needs, such as stabilization analysis, intermediates, and audio preparation, run first and report progress.
 - **Cancel** stops cleanly and deletes the partial file. Progress and ETA come from the frame index.
 - **Keep awake.** Export holds a keep-awake lock. On Android, export runs in the foreground with a progress screen (section 13.3).
-- **Desktop FFmpeg sidecar.** The Electron app bundles an LGPL FFmpeg build that runs as a separate process. It creates intermediates for sources WebCodecs cannot decode (section 9) and encodes streams WebCodecs cannot encode, such as AAC on Linux. H.264 encoding through the sidecar uses OpenH264 or platform hardware encoders, because libx264 is GPL. Frames still come from `renderFrame`, so preview and export still match.
+- **Desktop FFmpeg sidecar** ([ADR-0009](adrs/0009-desktop-ffmpeg-sidecar.md)). The Electron app bundles an LGPL FFmpeg build that runs as a separate process. It creates intermediates for sources WebCodecs cannot decode (section 9) and encodes streams WebCodecs cannot encode, such as AAC on Linux. H.264 encoding through the sidecar uses OpenH264 or platform hardware encoders, because libx264 is GPL. Frames still come from `renderFrame`, so preview and export still match.
 
 ## 12. Background jobs and caches
 
@@ -509,6 +548,8 @@ The rest of the system does not change when the analysis algorithm is implemente
 | `KeepAwake` | Prevent sleep during export | `powerSaveBlocker` | Keep-screen-on flag |
 | `AppPaths` | Data, cache, recovery locations | `app.getPath` | App-specific storage |
 | `Permissions` | Camera and microphone access | OS prompts | Runtime permissions and WebView permission grants |
+
+The interfaces import no other package (section 4). They deal in bytes, byte ranges, paths, URLs, and small types of their own, never project model types; `app-state` and `media` translate between those and `core` types, so a change to the project model never reaches an adapter implementation.
 
 The playground implements these interfaces with browser APIs (File System Access, OPFS), which is enough for engine work and tests. It has no `MediaTranscoder`. It can also be published as a Chromium-only web version that works offline as an installable web app.
 
@@ -593,7 +634,18 @@ Prototypes must validate these risks before features depend on them. The pass cr
 | Mesh and particle presets (page curl, shatter, lens flares) | Effort and mobile GPU performance | One preset of each kind on a low-end device | 30 fps at preview resolution |
 | Stabilization analysis cost | Feasibility on mobile | OpenCV.js tracking on a 1-minute 1080p clip | Under 2 minutes on a mid-range phone |
 
-**Android decision gate.** If the binary transfer or decoder prototype fails on Android, Android adopts the native engine fallback (section 13.3) before Android feature work starts.
+**Android decision gate.** If the binary transfer or decoder prototype fails on Android, Android adopts the native engine fallback (section 13.3) before Android feature work starts. The gate passed on 2026-11-26 (section 15.1), so the shared engine runs in the Android WebView and the fallback is not adopted.
+
+### 15.1 Prototype results
+
+Results land here as prototypes finish. Methods, devices, and full numbers are in [phase 7](design/phase-7-platform-prototypes.md). One high-end phone (Samsung SM-G990B, Android 16) and one Windows machine have been measured so far. The gate was closed with that phone; a mid-range phone is untested.
+
+| Risk | Result |
+|---|---|
+| Binary transfer between WebView and native on Android | Capacitor plugin calls reach 11 MB/s. A loopback HTTP server reaches 96 to 136 MB/s but renderer memory grows to about 1 GB. `addWebMessageListener` ArrayBuffer messages of 1 MiB reach 227 MB/s with flat memory. The last is the candidate for the Android `ExportSink`. |
+| Hardware decoder limits and seek latency | A 4K HEVC decode runs at 109 fps and two at 80 fps each. Five 4K hardware decoders work at once. Proxy seek takes 39 ms at the 95th percentile, and 4K original seek 496 ms with a 2 s key frame interval. A mid-range phone is untested. |
+| Preview A/V sync on Android | The WebView reports 8 to 24 ms output latency. A speaker-to-microphone loopback measured a stable 211 ms round trip, which cannot be split into output and input latency, so the offset against the picture is not measured. |
+| AAC and H.264 encoder availability | WebCodecs encodes both and the MP4 mux works on Windows (Electron) and on the Android phone. macOS and Linux are untested. |
 
 ## 16. Walking skeleton
 
@@ -610,4 +662,6 @@ Android work starts after the Android prototypes in section 15 pass or the decis
 
 ## 17. Open questions
 
-No architecture questions are open. Product behavior questions are tracked in specification §9.
+Product behavior questions are tracked in specification §9. These architecture questions are open, with recommendations in the [Phase 0 design document](design/phase-0-workspace-scaffold.md#5-open-questions):
+
+- **Q0.13.** Should a package's source under `src/` be allowed to import files outside `src/` by relative path? Entry isolation (section 4) does not follow a chain of imports and checks only files under the protected folder, so a protected file can reach the other entry point through a file outside `src/`, which reaches it by name (its own package's entry point) or by relative path. The same path lets package source import an unlinted JavaScript file. The recommendation is that package files under `src/`, tests included, import by relative path only inside their own `src/`.
