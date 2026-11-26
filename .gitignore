@@ -1,0 +1,17 @@
+node_modules/
+dist/
+dist-test/
+build/
+*.tsbuildinfo
+coverage/
+
+# Playwright
+playwright-report/
+test-results/
+blob-report/
+playwright/.cache/
+
+# Editors and OS
+.DS_Store
+Thumbs.db
+*.log

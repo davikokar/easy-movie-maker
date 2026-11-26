@@ -1,0 +1,25 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.tools.json" },
+    { "path": "./packages/core" },
+    { "path": "./packages/core/tsconfig.test.json" },
+    { "path": "./packages/platform" },
+    { "path": "./packages/platform/tsconfig.test.json" },
+    { "path": "./packages/fonts" },
+    { "path": "./packages/fonts/tsconfig.test.json" },
+    { "path": "./packages/engine" },
+    { "path": "./packages/engine/tsconfig.test.json" },
+    { "path": "./packages/audio" },
+    { "path": "./packages/audio/tsconfig.test.json" },
+    { "path": "./packages/media" },
+    { "path": "./packages/media/tsconfig.test.json" },
+    { "path": "./packages/app-state" },
+    { "path": "./packages/app-state/tsconfig.test.json" },
+    { "path": "./packages/ui-kit" },
+    { "path": "./packages/ui-kit/tsconfig.test.json" },
+    { "path": "./apps/playground" },
+    { "path": "./apps/playground/tsconfig.test.json" },
+    { "path": "./apps/playground/tsconfig.node.json" }
+  ]
+}

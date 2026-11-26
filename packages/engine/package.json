@@ -1,0 +1,16 @@
+{
+  "name": "@moviemaker/engine",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts",
+    "./catalog": "./src/catalog/index.ts"
+  },
+  "dependencies": {
+    "@moviemaker/core": "workspace:*",
+    "@moviemaker/fonts": "workspace:*",
+    "@moviemaker/platform": "workspace:*"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "@moviemaker/app-state",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@moviemaker/audio": "workspace:*",
+    "@moviemaker/core": "workspace:*",
+    "@moviemaker/engine": "workspace:*",
+    "@moviemaker/media": "workspace:*",
+    "@moviemaker/platform": "workspace:*"
+  }
+}

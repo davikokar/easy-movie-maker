@@ -1,0 +1,8 @@
+packages:
+  - 'packages/*'
+  - 'apps/*'
+  # prototypes/ are throwaway and keep their own lockfiles; they are not part of this workspace.
+
+# pnpm 12 blocks dependency build scripts by default. No dependency here needs one (Vite 8 uses
+# Rolldown, not esbuild). Add a package here as `name: true` only when one does.
+allowBuilds: {}

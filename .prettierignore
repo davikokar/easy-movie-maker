@@ -1,0 +1,7 @@
+# Documentation, agent files, and prototypes are not formatted by this tool.
+docs/
+.github/
+prototypes/
+AGENTS.md
+pnpm-lock.yaml
+dist/
