@@ -31,11 +31,13 @@ Phase 7, architecture §15).
 - **Phase 0** (workspace scaffold) is built: the pnpm workspace, the packages from architecture §4
   and `apps/playground` with placeholder entry points, the enforced dependency rules, and the gate
   commands below. The user settled the dependency rules and approved `@types/node` and
-  `@eslint/js` on 2026-11-26 (Phase 0 Q0.7 to Q0.12). Phase 0 waits for the user to commit the
-  scaffold, then for `pnpm install`, `pnpm typecheck`, `pnpm lint`, `pnpm test`, and
-  `pnpm format:check` to pass in a real clone of that commit (which closes stage 0.1 and Phase 0).
-  The Reviewer ran every gate command and `pnpm build` independently on 2026-11-26, before a later
-  fix to one lint-rule test.
+  `@eslint/js` on 2026-11-26 (Phase 0 Q0.7 to Q0.12), and accepted Q0.13 the same day, which
+  keeps a package's source importing by path only inside its `src/`. The scaffold is committed
+  (`cf8b8e8`); the Q0.13 change is not yet. Phase 0 waits for that commit, then for
+  `pnpm install`, `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm format:check` to pass in a
+  real clone of it (which closes stage 0.1 and Phase 0). The Reviewer ran every gate command and
+  `pnpm build` independently on 2026-11-26, before a later fix to one lint-rule test and before
+  Q0.13; since then only the Coder has. Phase 0 Q0.14 awaits the user and blocks nothing.
 - **Phase 1** (core model and edit plan) is next.
 - **Phase 7** is in progress; the Android decision gate passed on 2026-11-26.
 
@@ -163,8 +165,10 @@ Run each command from the repository root, after `pnpm install`.
    typescript-eslint and two rules of this repository in `eslint.config.js`, which enforce the
    parts of architecture §4 that TypeScript cannot: `moviemaker/package-boundary`, an exact import
    allowlist per package, app, and file group (a new third-party or Node import fails until it is
-   added there), and `moviemaker/entry-isolation`, which keeps a package's entry points apart
-   inside the package. Both hold only within the limits listed in architecture §4. Prettier also
+   added there) that also keeps relative paths inside the package or app, and inside `src/` for
+   files under a package's `src/`; and `moviemaker/entry-isolation`, which keeps a package's entry
+   points apart inside the package and makes its files outside `src/` import it by name. Both
+   hold only within the limits listed in architecture §4. Prettier also
    rejects CRLF line endings.
 3. **Unit tests pass:** `pnpm test` (Vitest; every package and app is a project, run in Node, plus
    the `lint-rules` project in `tools/lint/`, which runs ESLint with the repository's configuration

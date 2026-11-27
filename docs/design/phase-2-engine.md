@@ -112,7 +112,7 @@ preset kinds, a crossfade, and one Pan & Zoom preset.
 | Q2.4 | Does the playground UI use React? | Yes, minimally, matching the apps. It hosts controls for loading a fixture and scrubbing. If yes, the change that adds React also sets the TypeScript `jsx` option, which Phase 0 left unset. | 2.1 |
 | Q2.5 | Preset ID scheme for the two presets? | Follow the example in architecture §5.2: `transition.blend.crossfade@1` and `panzoom.zoom-in.center@1`. | 2.3 |
 | Q2.6 | May `engine` import `media`, or does `media` implement the engine's frame source? | Resolved 2026-11-26 ([Phase 0 Q0.8](phase-0-workspace-scaffold.md#5-open-questions)): `engine` does not import `media`. The frame source of 2.2 is an `engine` interface; `media` implements it in Phase 3 stage 3.3 without importing `engine`, and `app-state` or the app's worker start-up connects them. | 2.2 |
-| Q2.7 | Does lint stop the catalog entry point from reaching the rest of `engine` (for example `export * from '../index'` in `src/catalog/index.ts`), which would give `ui-kit` the renderer? | Resolved 2026-11-26 ([Phase 0 Q0.12](phase-0-workspace-scaffold.md#5-open-questions)): yes. `moviemaker/entry-isolation` rejects any import from `src/catalog/` of the rest of `engine`'s `src/` or of `@moviemaker/engine`, with cases in the `lint-rules` suite, so 2.3 needs no extra exit criterion. A route through a file outside `src/` remains; Phase 0 Q0.13 recommends closing it before 2.3. | 2.3 |
+| Q2.7 | Does lint stop the catalog entry point from reaching the rest of `engine` (for example `export * from '../index'` in `src/catalog/index.ts`), which would give `ui-kit` the renderer? | Resolved 2026-11-26 ([Phase 0 Q0.12](phase-0-workspace-scaffold.md#5-open-questions)): yes. `moviemaker/entry-isolation` rejects any import from `src/catalog/` of the rest of `engine`'s `src/` or of `@moviemaker/engine`, with cases in the `lint-rules` suite, so 2.3 needs no extra exit criterion. The route through a file outside `src/` is closed too ([Phase 0 Q0.13](phase-0-workspace-scaffold.md#5-open-questions), resolved 2026-11-26 and implemented): a file under `src/` imports by path only inside its package's `src/`. | 2.3 |
 
 ## 6. Stage log
 
@@ -120,11 +120,12 @@ preset kinds, a crossfade, and one Pan & Zoom preset.
 |---|---|
 | 2026-11-24 | Document created. |
 | 2026-11-26 | Q2.6 and Q2.7 resolved through Phase 0 Q0.8 and Q0.12. |
+| 2026-11-27 | Q2.7 updated: Phase 0 Q0.13 resolved and implemented, closing the route through a file outside `src/`. |
 
 ## 7. Handoff
 
 - **Read first:** architecture §7–§8, ADR-0002, ADR-0007, the test instructions.
 - **Do next:** after Phase 1 stage 1.4, answer the questions each stage needs and start stage 2.1:
   Q2.4 before 2.1; Q2.1 and Q2.5 before 2.3; Q2.2 and Q2.3 before 2.5. Q2.6 and Q2.7 are
-  resolved; Phase 0 Q0.13 is recommended before 2.3. Stage 2.1 and the harness in 2.5 can start
+  resolved, and so is Phase 0 Q0.13. Stage 2.1 and the harness in 2.5 can start
   as soon as Phase 0 is complete.

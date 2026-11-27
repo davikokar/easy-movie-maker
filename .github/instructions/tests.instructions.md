@@ -19,11 +19,16 @@ These rules apply to test files and complement [AGENTS.md](../../AGENTS.md).
 
 - **Unit and audio tests are colocated** with the code: `src/**/*.test.ts` or `src/**/*.test.tsx`
   in the package or app. Vitest collects only those patterns in package and app projects. Each
-  package's `tsconfig.json` excludes test files, and its `tsconfig.test.json` typechecks them.
+  package's `tsconfig.json` excludes test files, and its `tsconfig.test.json` typechecks them. A
+  file under a package's `tests/` folder would be linted but neither run nor typechecked; the
+  change that adds the first one adds both.
 - **Import Vitest explicitly**: `import { describe, expect, it } from 'vitest'`. No globals.
 - **Test imports are allowlisted** in `eslint.config.js` (architecture §4), and the comparison is
-  exact. Package tests may import `vitest`, the `@moviemaker` entry points their package may
-  import, and relative paths inside the package. The playground allows `vitest` in unit tests and
+  exact. Colocated package tests may import `vitest`, the `@moviemaker` entry points their
+  package may import, and, by relative path, only files inside their package's `src/`. A file of
+  a package outside `src/` (under `tests/` or at the package root) may import other such files by
+  relative path, and its own package only by name, never by a path into `src/` (interim until
+  Phase 0 Q0.14 is answered). The playground allows `vitest` in unit tests and
   `@playwright/test` in `tests/` and `*.spec.*` files. Any other specifier fails `pnpm lint`,
   including a Node built-in such as `node:path` and a subpath such as `vitest/config`, until it is
   added to that file group's list. A third-party package is a new dependency and needs approval
@@ -37,8 +42,9 @@ These rules apply to test files and complement [AGENTS.md](../../AGENTS.md).
   specifiers of each of its file groups. Without its `eslint.config.js` entry a package or app gets
   no dependency-rule check, and nothing fails. A package with a second entry point also needs a
   row in `entryIsolation` in `eslint.config.js`, or nothing keeps its entry points apart inside
-  it. A new package also goes into the hand-written table in
-  `tools/lint/package-boundary.test.ts` (below), or its edges are not tested.
+  it. A new package also goes into the hand-written table and into `packageNames` in
+  `tools/lint/package-boundary.test.ts` (below), or its edges and its `src/` path limit are not
+  tested.
 - **Lint-rule regression tests** live in `tools/lint/`, as the Vitest project `lint-rules`,
   typechecked through `tsconfig.tools.json`:
   - `package-boundary.test.ts` runs the real ESLint with the repository's `eslint.config.js` over
@@ -49,7 +55,10 @@ These rules apply to test files and complement [AGENTS.md](../../AGENTS.md).
     of which package may import which entry point of another, checked in a source and a test
     file; and, for each `entryIsolation` row, every import form of every specifier that reaches
     the other entry point, in a source file, a test, a `.js` file, and a nested file, plus the
-    allowed directions.
+    allowed directions. For Phase 0 Q0.13 it holds, in every package, every import form of a path
+    out of `src/` (from a source file, a test, and a nested file) and of a path into `src/` from
+    files outside it; the same in each file extension, in `engine`; the allowed paths; and one
+    test that lints every existing package and app file and expects no error from either rule.
   - `eslint-config-files.test.ts` fails if any `eslint.config.*` other than the root one exists,
     matching the name in any letter case (ESLint loads a differently cased name on Windows; on
     Linux the test is stricter than ESLint). It walks the repository and skips exactly the folders

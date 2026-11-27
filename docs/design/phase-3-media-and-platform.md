@@ -105,7 +105,7 @@ decoding and preparation belong to Phase 4.
 | Q3.3 | Default decoder pool size and frame cache size on desktop? | Start with two decoders (one per transition layer) and a cache of a few frames each side of the playhead. Measure in the playground before fixing. | 3.3 |
 | Q3.4 | Where do fixture media files live, and under what licence? | In a test fixtures folder, created in-house (generated test patterns), so their licence is clear. | 3.2 |
 | Q3.5 | Does `media` implement the engine's frame source without importing `engine`? | Resolved 2026-11-26 ([Phase 0 Q0.8](phase-0-workspace-scaffold.md#5-open-questions)): yes. `media` imports only `core` and the `platform` interfaces, implements the frame source of Phase 2 stage 2.2 without importing `engine`, and `app-state` or the app's worker start-up connects them. | 3.3 |
-| Q3.6 | Does lint stop the `platform` root from reaching the browser implementation (for example `export * from './browser/index'` in `src/index.ts`), which would give `engine`, `audio`, and `media` a platform implementation? | Resolved 2026-11-26 ([Phase 0 Q0.12](phase-0-workspace-scaffold.md#5-open-questions)): yes. `moviemaker/entry-isolation` rejects any import of `src/browser/` or `@moviemaker/platform/browser` from `platform`'s `src/` outside `src/browser/`, with cases in the `lint-rules` suite, so 3.1 needs no extra exit criterion. A route through a file outside `src/` remains; Phase 0 Q0.13 recommends closing it before 3.1. | 3.1 |
+| Q3.6 | Does lint stop the `platform` root from reaching the browser implementation (for example `export * from './browser/index'` in `src/index.ts`), which would give `engine`, `audio`, and `media` a platform implementation? | Resolved 2026-11-26 ([Phase 0 Q0.12](phase-0-workspace-scaffold.md#5-open-questions)): yes. `moviemaker/entry-isolation` rejects any import of `src/browser/` or `@moviemaker/platform/browser` from `platform`'s `src/` outside `src/browser/`, with cases in the `lint-rules` suite, so 3.1 needs no extra exit criterion. The route through a file outside `src/` is closed too ([Phase 0 Q0.13](phase-0-workspace-scaffold.md#5-open-questions), resolved 2026-11-26 and implemented): a file under `src/` imports by path only inside its package's `src/`. | 3.1 |
 
 ## 6. Stage log
 
@@ -113,10 +113,11 @@ decoding and preparation belong to Phase 4.
 |---|---|
 | 2026-11-24 | Document created. |
 | 2026-11-26 | Q3.5 and Q3.6 resolved through Phase 0 Q0.8 and Q0.12; Phase 0 Q0.10, which shapes Q3.2, resolved. |
+| 2026-11-27 | Q3.6 updated: Phase 0 Q0.13 resolved and implemented, closing the route through a file outside `src/`. |
 
 ## 7. Handoff
 
 - **Read first:** architecture §9, §12, §13.1, ADR-0005.
 - **Do next:** after Phase 1 stage 1.2, approve Q3.2 and start stage 3.1 (Q3.1, Q3.6, and Phase 0
-  Q0.10 are resolved; Phase 0 Q0.13 is recommended before 3.1). Answer Q3.4 before 3.2, and Q3.3
+  Q0.10 and Q0.13 are resolved). Answer Q3.4 before 3.2, and Q3.3
   before 3.3 (Q3.5 is resolved). Stage 3.3 also needs Phase 2 stage 2.2.
