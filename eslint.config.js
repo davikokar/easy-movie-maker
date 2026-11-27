@@ -130,6 +130,7 @@ const packageBoundary = {
           root: { type: 'string' },
           name: { type: 'string' },
           allowed: { type: 'array', items: { type: 'string' } },
+          inside: { type: 'string' },
         },
         required: ['root', 'name', 'allowed'],
         additionalProperties: false,
@@ -137,7 +138,7 @@ const packageBoundary = {
     ],
     messages: {
       leavesRoot:
-        "'{{specifier}}' reaches outside {{name}}; import another package by its @moviemaker name (architecture section 4).",
+        "'{{specifier}}' reaches outside {{scope}}; a relative path stays inside it, and another package is imported by its @moviemaker name (architecture section 4).",
       throughNodeModules:
         "'{{specifier}}' goes through a node_modules folder; import by package name instead (architecture section 4).",
       notAllowed:
@@ -145,20 +146,28 @@ const packageBoundary = {
     },
   },
   create(context) {
-    const { root, name, allowed } = context.options[0];
-    const realRoot = realPath(root);
+    const { root, name, allowed, inside } = context.options[0];
+    // Paths must stay in `inside` (a subfolder of root) when it is given, else anywhere in root.
+    const limit = inside ? path.resolve(root, inside) : root;
+    const realLimit = realPath(limit);
+    const scope = inside ? `${name}/${inside}` : name;
     const check = (node, rawSpecifier) => {
       if (typeof rawSpecifier !== 'string') return;
       // A backslash is a separator on Windows only; treat it as one everywhere so the rule never depends on the host.
       const specifier = rawSpecifier.replaceAll('\\', '/');
-      const data = { specifier: rawSpecifier, name, allowed: allowed.join(', ') || 'nothing' };
+      const data = {
+        specifier: rawSpecifier,
+        name,
+        scope,
+        allowed: allowed.join(', ') || 'nothing',
+      };
       if (specifier.startsWith('.') || specifier.startsWith('/')) {
         if (specifier.split('/').includes('node_modules')) {
           context.report({ node, messageId: 'throughNodeModules', data });
           return;
         }
         const target = path.resolve(path.dirname(context.filename), specifier);
-        if (!isInside(root, target) || !isInside(realRoot, realPath(target))) {
+        if (!isInside(limit, target) || !isInside(realLimit, realPath(target))) {
           context.report({ node, messageId: 'leavesRoot', data });
         }
         return;
@@ -224,10 +233,15 @@ const entryIsolationRule = {
 // A directive could pull in the DOM or Node types, or a file from another package, without an import.
 const noDirectives = ['error', { lib: 'never', path: 'never', types: 'never' }];
 
-const boundaryRules = (kind, directory, name, allowed) => ({
+const boundaryRules = (kind, directory, name, allowed, inside) => ({
   'moviemaker/package-boundary': [
     'error',
-    { root: path.resolve(import.meta.dirname, directory, name), name: `${kind}/${name}`, allowed },
+    {
+      root: path.resolve(import.meta.dirname, directory, name),
+      name: `${kind}/${name}`,
+      allowed,
+      ...(inside && { inside }),
+    },
   ],
 });
 
@@ -246,7 +260,8 @@ const dependencyRules = [
   ...Object.keys(allowedImports).flatMap((name) => {
     const root = `packages/${name}`;
     const allowed = [...entryPoints[name], ...allowedImports[name]];
-    const rules = (bare) => boundaryRules('packages', 'packages', name, [...allowed, ...bare]);
+    const rules = (bare, inside) =>
+      boundaryRules('packages', 'packages', name, [...allowed, ...bare], inside);
     return [
       {
         ...guarded,
@@ -257,6 +272,33 @@ const dependencyRules = [
         ...guarded,
         files: [`${root}/**/*.test.{${allExtensions}}`, `${root}/tests/**/*.{${allExtensions}}`],
         rules: rules(packageTestImports),
+      },
+      // Under src/ a relative path stays in src/, tests included (Phase 0 Q0.13).
+      {
+        ...guarded,
+        files: [`${root}/src/**/*.{${allExtensions}}`],
+        rules: rules([], 'src'),
+      },
+      {
+        ...guarded,
+        files: [`${root}/src/**/*.test.{${allExtensions}}`],
+        rules: rules(packageTestImports, 'src'),
+      },
+      // Outside src/ (tests/, package root) the entry points are reached by package name only, so isolation applies.
+      {
+        ...guarded,
+        files: [`${root}/**/*.{${allExtensions}}`],
+        ignores: [`${root}/src/**`],
+        rules: {
+          'moviemaker/entry-isolation': [
+            'error',
+            {
+              target: { folder: path.resolve(import.meta.dirname, root, 'src'), names: [] },
+              reason:
+                'files outside src/ may import their package only by its @moviemaker name, not by a path into src/ (Q0.13)',
+            },
+          ],
+        },
       },
     ];
   }),

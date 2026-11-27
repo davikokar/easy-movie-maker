@@ -997,3 +997,409 @@ describe('Q0.12 S1: the engine catalog cannot reach the rest of the engine', () 
 
   it.each(accepted)('accepts: $name', expectAccepted);
 });
+
+const packageNames = [
+  'core',
+  'platform',
+  'fonts',
+  'engine',
+  'audio',
+  'media',
+  'app-state',
+  'ui-kit',
+];
+const everyExtension = ['ts', 'tsx', 'mts', 'cts', 'js', 'jsx', 'mjs', 'cjs'];
+const absoluteIn = (folder: string) => path.join(repoRoot, folder).replaceAll('\\', '/');
+
+describe('Q0.13: package files under src/ import by relative path only inside their own src/', () => {
+  const routeOne = [
+    {
+      name: "route 1: platform's index re-exports a file under tests/",
+      file: 'packages/platform/src/index.ts',
+      code: `export * from '../tests/x';`,
+    },
+    {
+      name: 'route 2: the catalog imports a file under tests/',
+      file: 'packages/engine/src/catalog/index.ts',
+      code: `export * from '../../tests/x';`,
+    },
+    {
+      name: 'route 3: the catalog imports a file at the engine package root',
+      file: 'packages/engine/src/catalog/index.ts',
+      code: `export * from '../../x';`,
+    },
+    {
+      name: 'a src file imports a file at the package root',
+      file: 'packages/engine/src/x.ts',
+      code: `import '../x';`,
+    },
+    {
+      name: 'a nested src file imports a file under tests/',
+      file: 'packages/engine/src/deep/x.ts',
+      code: `import '../../tests/x';`,
+    },
+    {
+      name: 'a nested src file imports the package root folder',
+      file: 'packages/engine/src/deep/x.ts',
+      code: `import '../..';`,
+    },
+    {
+      name: 'a src file imports the package folder itself',
+      file: 'packages/engine/src/x.ts',
+      code: `import '..';`,
+    },
+    {
+      name: 'a src file steps out and back into src/ through tests/',
+      file: 'packages/engine/src/x.ts',
+      code: `import '../tests/../src/../tests/x';`,
+    },
+    {
+      name: 'a src test file imports a file under tests/',
+      file: 'packages/engine/src/x.test.ts',
+      code: `import '../tests/x';`,
+    },
+    {
+      name: 'an absolute path into tests/',
+      file: 'packages/engine/src/x.ts',
+      code: `import '${absoluteIn('packages/engine/tests/x')}';`,
+    },
+    {
+      name: 'an absolute path to the package root',
+      file: 'packages/engine/src/x.ts',
+      code: `import '${absoluteIn('packages/engine/x')}';`,
+    },
+    {
+      name: 'a backslash path into tests/',
+      file: 'packages/engine/src/x.ts',
+      code: String.raw`import '..\\tests\\x';`,
+    },
+    {
+      name: 'a path to the package.json',
+      file: 'packages/engine/src/x.ts',
+      code: `import '../package.json';`,
+    },
+  ];
+
+  it.each(routeOne)('rejects: $name', expectRejected);
+
+  const everyForm = packageNames.flatMap((name) =>
+    ['x.ts', 'x.test.ts', 'deep/x.ts'].flatMap((file) => {
+      const up = file.startsWith('deep/') ? '../..' : '..';
+      return [`${up}/tests/x`, `${up}/x`].flatMap((specifier) =>
+        inFile(`packages/${name}/src/${file}`, importForms(specifier)).map((c) => ({
+          ...c,
+          name: `${name}/src/${file}: ${c.name}`,
+        })),
+      );
+    }),
+  );
+
+  it.each(everyForm)('rejects $name', expectRejected);
+
+  const everyFileExtension = everyExtension.flatMap((extension) => [
+    {
+      name: `.${extension} under src/`,
+      file: `packages/engine/src/x.${extension}`,
+      code: extension === 'cjs' ? `require('../tests/x');` : `import '../tests/x';`,
+    },
+    {
+      name: `.${extension} under src/catalog/`,
+      file: `packages/engine/src/catalog/x.${extension}`,
+      code: extension === 'cjs' ? `require('../../x');` : `import '../../x';`,
+    },
+  ]);
+
+  it.each(everyFileExtension)('rejects a path out of src/ in a $name', expectRejected);
+
+  const accepted: Case[] = [
+    {
+      name: 'src imports a sibling',
+      file: 'packages/engine/src/x.ts',
+      code: `import './y';`,
+    },
+    {
+      name: 'src imports a file in a subfolder',
+      file: 'packages/engine/src/x.ts',
+      code: `import './deep/y';`,
+    },
+    {
+      name: 'a nested file imports its parent folder',
+      file: 'packages/engine/src/deep/x.ts',
+      code: `import '../y';`,
+    },
+    {
+      name: 'a nested file imports src/ itself',
+      file: 'packages/engine/src/deep/x.ts',
+      code: `import '..';`,
+    },
+    {
+      name: 'a deeply nested file imports a path through src/',
+      file: 'packages/engine/src/a/b/x.ts',
+      code: `import '../../../src/y';`,
+    },
+    {
+      name: 'a catalog file imports a catalog sibling',
+      file: 'packages/engine/src/catalog/x.ts',
+      code: `import './y'; import './deep/z';`,
+    },
+    {
+      name: 'the engine root imports the catalog',
+      file: 'packages/engine/src/x.ts',
+      code: `import './catalog/index';`,
+    },
+    {
+      name: 'a src test imports the module it tests',
+      file: 'packages/engine/src/x.test.ts',
+      code: `import 'vitest'; import './x';`,
+    },
+    {
+      name: 'a nested src test imports a module in src/',
+      file: 'packages/engine/src/deep/x.test.ts',
+      code: `import 'vitest'; import '../index';`,
+    },
+    {
+      name: 'a src .tsx file imports a sibling',
+      file: 'packages/ui-kit/src/x.tsx',
+      code: `import './y';`,
+    },
+    {
+      name: 'a src .js file imports a sibling',
+      file: 'packages/engine/src/x.js',
+      code: `import './y.js';`,
+    },
+    {
+      name: 'a src .cjs file requires a sibling',
+      file: 'packages/engine/src/x.cjs',
+      code: `require('./y.cjs');`,
+    },
+    {
+      name: 'a src file whose path contains an extra dot segment',
+      file: 'packages/engine/src/deep/x.ts',
+      code: `import './../y';`,
+    },
+    {
+      name: 'a src file imports a folder whose name starts with src',
+      file: 'packages/engine/src/x.ts',
+      code: `import './src-extra/y';`,
+    },
+    {
+      name: 'the platform browser implementation imports a root sibling',
+      file: 'packages/platform/src/browser/x.ts',
+      code: `import '../interfaces';`,
+    },
+  ];
+
+  it.each(accepted)('accepts: $name', expectAccepted);
+
+  it("keeps the other packages' imports by name working next to a relative path", () =>
+    expectAccepted({
+      name: '',
+      file: 'packages/engine/src/x.ts',
+      code: `import '@moviemaker/core'; import './y';`,
+    }));
+});
+
+describe('Q0.13: files outside src/ reach their package by name, not by a path into src/', () => {
+  const rejects = (cases: Case[]) =>
+    it.each(cases)('rejects: $name', (c) => expectRejected({ rule: ISOLATION, ...c }));
+
+  rejects([
+    {
+      name: 'route 4: a package-root file imports the browser implementation',
+      file: 'packages/platform/x.ts',
+      code: `import './src/browser/index';`,
+    },
+    {
+      name: 'route 4: a test imports the engine root by path',
+      file: 'packages/engine/tests/x.ts',
+      code: `import '../src/index';`,
+    },
+    {
+      name: 'a test imports the engine catalog by path',
+      file: 'packages/engine/tests/x.ts',
+      code: `import '../src/catalog/index';`,
+    },
+    {
+      name: 'a test imports the src folder',
+      file: 'packages/engine/tests/x.ts',
+      code: `import '../src';`,
+    },
+    {
+      name: 'a nested test imports src by path',
+      file: 'packages/engine/tests/deep/x.ts',
+      code: `import '../../src/index';`,
+    },
+    {
+      name: 'a test steps through tests/ into src/',
+      file: 'packages/engine/tests/x.ts',
+      code: `import '../tests/../src/index';`,
+    },
+    {
+      name: 'a package-root file imports the src folder',
+      file: 'packages/engine/x.ts',
+      code: `import './src';`,
+    },
+    {
+      name: 'a package-root .js file imports src',
+      file: 'packages/engine/x.js',
+      code: `import './src/index.js';`,
+    },
+    {
+      name: 'a package-root .cjs file requires src',
+      file: 'packages/engine/x.cjs',
+      code: `require('./src/index.js');`,
+    },
+    {
+      // A Windows drive path is not a path to the rules but a specifier outside the allowlist.
+      name: 'a test imports src by an absolute path',
+      file: 'packages/engine/tests/x.ts',
+      code: `import '${absoluteIn('packages/engine/src/index')}';`,
+      rule: absoluteIn('').startsWith('/') ? ISOLATION : BOUNDARY,
+    },
+    {
+      name: 'a test imports src by a backslash path',
+      file: 'packages/engine/tests/x.ts',
+      code: String.raw`import '..\\src\\index';`,
+    },
+    {
+      name: 'a nested package-root folder imports src',
+      file: 'packages/engine/config/x.ts',
+      code: `import '../src/index';`,
+    },
+  ]);
+
+  const everyForm = packageNames.flatMap((name) =>
+    [
+      ['tests/x.ts', '../src/index'],
+      ['tests/deep/x.ts', '../../src/index'],
+      ['x.ts', './src/index'],
+      ['x.test.ts', './src/index'],
+    ].flatMap(([file, specifier]) =>
+      inFile(`packages/${name}/${file}`, importForms(specifier!)).map((c) => ({
+        ...c,
+        name: `${name}/${file}: ${c.name}`,
+      })),
+    ),
+  );
+
+  it.each(everyForm)('rejects $name', (c) => expectRejected({ ...c, rule: ISOLATION }));
+
+  const everyFileExtension = everyExtension.flatMap((extension) => [
+    {
+      name: `.${extension} under tests/`,
+      file: `packages/engine/tests/x.${extension}`,
+      code: extension === 'cjs' ? `require('../src/index');` : `import '../src/index';`,
+    },
+    {
+      name: `.${extension} at the package root`,
+      file: `packages/engine/x.${extension}`,
+      code: extension === 'cjs' ? `require('./src/index');` : `import './src/index';`,
+    },
+  ]);
+
+  it.each(everyFileExtension)('rejects a path into src/ in a $name', (c) =>
+    expectRejected({ ...c, rule: ISOLATION }),
+  );
+
+  it("still rejects a test importing another package's src by path", () =>
+    expectRejected({
+      name: '',
+      file: 'packages/engine/tests/x.ts',
+      code: `import '../../platform/src/browser/index';`,
+    }));
+
+  const accepted: Case[] = [
+    {
+      name: 'a test imports its package root by name',
+      file: 'packages/engine/tests/x.ts',
+      code: `import 'vitest'; import '@moviemaker/engine';`,
+    },
+    {
+      name: 'a test imports the engine catalog by name',
+      file: 'packages/engine/tests/x.ts',
+      code: `import '@moviemaker/engine/catalog';`,
+    },
+    {
+      name: 'a test imports the platform browser implementation by name',
+      file: 'packages/platform/tests/x.ts',
+      code: `import '${platformBrowser}';`,
+    },
+    {
+      name: 'a nested test imports its package by name',
+      file: 'packages/engine/tests/deep/x.ts',
+      code: `import '@moviemaker/engine';`,
+    },
+    {
+      name: 'a test imports a sibling under tests/',
+      file: 'packages/engine/tests/x.ts',
+      code: `import './helpers'; import '../tests/helpers';`,
+    },
+    {
+      name: 'a nested test imports a helper in the parent tests/ folder',
+      file: 'packages/engine/tests/deep/x.ts',
+      code: `import '../helpers';`,
+    },
+    {
+      name: 'a test imports a folder whose name starts with src',
+      file: 'packages/engine/tests/x.ts',
+      code: `import '../src-fixtures/x';`,
+    },
+    {
+      name: 'a package-root file imports a sibling',
+      file: 'packages/engine/x.ts',
+      code: `import './y';`,
+    },
+    {
+      name: 'a package-root file imports a folder whose name starts with src',
+      file: 'packages/engine/x.ts',
+      code: `import './srcx/y';`,
+    },
+    {
+      name: 'a package-root file imports its package by name',
+      file: 'packages/engine/x.ts',
+      code: `import '@moviemaker/engine'; import '@moviemaker/core';`,
+    },
+    {
+      name: 'a test imports core by name',
+      file: 'packages/engine/tests/x.ts',
+      code: `import '@moviemaker/core';`,
+    },
+  ];
+
+  it.each(accepted)('accepts: $name', expectAccepted);
+
+  it('lets the apps keep importing files across their own folders', async () => {
+    const cases: Case[] = [
+      {
+        name: 'a golden spec imports a module under src/ by relative path',
+        file: 'apps/playground/tests/golden/x.spec.ts',
+        code: `import '@playwright/test'; import '../../src/app-info';`,
+      },
+      {
+        name: 'the vite configuration imports a module under src/ by relative path',
+        file: 'apps/playground/vite.config.ts',
+        code: `import 'vite'; import './src/app-info';`,
+      },
+      {
+        name: 'a unit test imports its module',
+        file: 'apps/playground/src/x.test.ts',
+        code: `import 'vitest'; import './app-info';`,
+      },
+    ];
+
+    for (const c of cases) await expectAccepted(c);
+  });
+});
+
+describe('Q0.13: the repository has no file that the new rules would reject', () => {
+  it('lints every existing package and app file without a boundary or isolation error', async () => {
+    const results = await eslint.lintFiles(['packages/**/*', 'apps/**/*']);
+    const errors = results.flatMap((result) =>
+      result.messages
+        .filter((message) => message.ruleId === BOUNDARY || message.ruleId === ISOLATION)
+        .map((message) => `${result.filePath}: ${message.message}`),
+    );
+
+    expect(errors).toEqual([]);
+  });
+});
