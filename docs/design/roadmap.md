@@ -67,7 +67,7 @@ flowchart LR
 
 | Phase | Document | Status | Milestone |
 |---|---|---|---|
-| 0 | [Workspace scaffold](phase-0-workspace-scaffold.md) | In progress | Walking skeleton |
+| 0 | [Workspace scaffold](phase-0-workspace-scaffold.md) | Complete (2026-11-27) | Walking skeleton |
 | 1 | [Core model and edit plan](phase-1-core-model.md) | Not started | Walking skeleton |
 | 2 | [Engine](phase-2-engine.md) | Not started | Walking skeleton |
 | 3 | [Media and platform](phase-3-media-and-platform.md) | Not started | Walking skeleton |
@@ -160,15 +160,15 @@ blocking open question.
 | 2026-11-26 | Phase 0 Q0.7 to Q0.12 answered with the recommendations: `@types/node` and `@eslint/js` approved, the dependency rules settled (architecture §3 and §4), and the two enforcement gaps of Q0.12 closed by the Coder (reported gate passing, not yet confirmed independently). Phase 0 stays In progress: stage 0.1 waits for the first commit and a check from a real clone. Phase 0 Q0.13 opened on an indirect route around the new entry-point check. |
 | 2026-11-26 | Phase 0 round 3 review: the Reviewer ran all six gate commands independently (all pass) and kept stage 0.3 Complete; the nested-configuration test was fixed for letter case (Coder's gate after the fix passes, not yet confirmed independently); Phase 0 Q0.13 reproduced on two routes and still open. Roadmap §6: Mediabunny marked approved (Phase 3 Q3.1). Phase 0 stays In progress for the commit and the clean-clone check. |
 | 2026-11-27 | Phase 0 Q0.13 resolved (accepted 2026-11-26) and implemented by the Coder, uncommitted: package source imports by path only inside its `src/`, closing the indirect routes around the entry-point check before Phase 2 stage 2.3 and Phase 3 stage 3.1 (Coder's gate passing, not yet confirmed independently). Phase 0 Q0.14 opened on the part of that change that goes beyond the recommendation; it blocks nothing. The scaffold is committed (`cf8b8e8`); Phase 0 stays In progress until the commit with the Q0.13 change passes the clean-clone check. |
+| 2026-11-27 | **Phase 0 Complete.** The Q0.13 change is committed (`dc5170a`), and the Reviewer's check from a real clone of `29483d4` passed: `pnpm install` and all six gate commands exit 0, which closes stage 0.1 and confirms the gate and Q0.13 independently. Phase 0 Q0.15 opened (configuration can redirect an entry point; recommended test before Phase 2 stage 2.3 and Phase 3 stage 3.1) and Q0.16 (dates in the records). Phase 0 Q0.14 to Q0.16 and its Appendix A await the user and do not block Phase 1. Phase 1 is next. |
 
 ## 9. Handoff
 
-- **Read first:** this roadmap, then [Phase 0](phase-0-workspace-scaffold.md),
-  [Phase 1](phase-1-core-model.md), and [Phase 7](phase-7-platform-prototypes.md).
-- **Do next:** Phase 0 needs two things, listed in its handoff: the Q0.13 change is committed (the
-  scaffold already is, in `cf8b8e8`), and a real clone of that commit runs `pnpm install`,
-  `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm format:check` (this closes stage 0.1 and
-  Phase 0). The agent-file correction in its Appendix A and Phase 0 Q0.14 await the user but do
-  not hold Phase 0. Phase 1 can start from its handoff meanwhile. No Phase 0 question blocks a
-  later stage. Phase 7 is under way: stage 7.1 passes on Windows, the Android gate has passed,
-  and the open items are listed in the Phase 7 handoff.
+- **Read first:** this roadmap, then [Phase 1](phase-1-core-model.md) and
+  [Phase 7](phase-7-platform-prototypes.md); [Phase 0](phase-0-workspace-scaffold.md) §5 and §7
+  for its open items.
+- **Do next:** Phase 0 is complete. Start Phase 1 from its handoff: answer Q1.1 to Q1.5, then
+  stage 1.1. Phase 0 Q0.14 to Q0.16 and the agent-file correction in its Appendix A await the
+  user and do not block Phase 1; Phase 0 Q0.15 is to be answered before Phase 2 stage 2.3 and
+  Phase 3 stage 3.1. Phase 7 is under way: stage 7.1 passes on Windows, the Android gate has
+  passed, and the open items are listed in the Phase 7 handoff.

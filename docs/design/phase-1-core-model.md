@@ -93,6 +93,25 @@ clipboard, and relink. Phase 8 adds them. The schema may already describe them (
 - The runtime schema library is Zod or similar (architecture §5.3), subject to Q1.4.
 - File reading and writing belong to `platform`; `core` only serializes.
 
+Settled by Phase 0 (complete 2026-11-27) and binding here; see
+[Phase 0](phase-0-workspace-scaffold.md) and architecture §4:
+
+- `core` source compiles with `lib: ["ES2023"]` and no ambient types, so no DOM or Node global is
+  declared there: `crypto`, `structuredClone`, and `TextEncoder` do not typecheck in `core`
+  source. This settles the technical side of Q1.5: an injected ID generator is the only option
+  that compiles. `core` tests get Node's types, so the `structuredClone` check of 1.4 works in a
+  test.
+- `core` source may import no bare specifier but its own entry point; its tests may also import
+  `vitest`. Adding Zod (Q1.4) therefore also adds `zod` to `core`'s source allowlist in
+  `eslint.config.js` and to `core`'s `package.json`, with the licence check of ADR-0006. Whether
+  Zod's type declarations compile without the DOM library is checked when it is added.
+- Tests are colocated under `packages/core/src/`, and a file there imports by path only inside
+  `src/` (Phase 0 Q0.13). Fixtures, such as stored project files for migration tests, therefore
+  live under `src/`. `node:fs` is not on the test allowlist, and no tsconfig sets
+  `resolveJsonModule`, so stage 1.2 decides how a test reads a fixture; allowing either is a
+  configuration change named in that stage's plan.
+- No CI yet; the workflow is added once this phase has real tests (Phase 0 Q0.4).
+
 ## 5. Open questions
 
 | # | Question | Recommendation | Blocks |
@@ -108,8 +127,11 @@ clipboard, and relink. Phase 8 adds them. The schema may already describe them (
 | Date | Change |
 |---|---|
 | 2026-11-24 | Document created. |
+| 2026-11-27 | Phase 0 Complete. The constraints it settled for `core` recorded in §4. |
 
 ## 7. Handoff
 
-- **Read first:** architecture §5–§7, ADR-0002, ADR-0003, ADR-0004, the test instructions.
-- **Do next:** answer Q1.1–Q1.5 after Phase 0 is complete, then start stage 1.1.
+- **Read first:** architecture §4–§7, ADR-0002, ADR-0003, ADR-0004, the test instructions, and §4
+  of this document.
+- **Do next:** Phase 0 is complete (2026-11-27). Answer Q1.1–Q1.5, then start stage 1.1. No open
+  Phase 0 question blocks this phase.

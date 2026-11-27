@@ -21,25 +21,24 @@ Capacitor). It is a personal learning project that may become open source.
 
 ## Current phase
 
-**Workspace scaffold in place. No product code yet.**
+**Workspace scaffold complete (Phase 0). No product code yet.**
 
 The implementation plan is in the [roadmap](docs/design/roadmap.md), with one design document per
 phase under `docs/design/`. The work is the **walking skeleton** (roadmap Phases 0–6, architecture
 §16) and, alongside it, the **platform prototypes** that led to the Android decision gate (roadmap
 Phase 7, architecture §15).
 
-- **Phase 0** (workspace scaffold) is built: the pnpm workspace, the packages from architecture §4
-  and `apps/playground` with placeholder entry points, the enforced dependency rules, and the gate
-  commands below. The user settled the dependency rules and approved `@types/node` and
-  `@eslint/js` on 2026-11-26 (Phase 0 Q0.7 to Q0.12), and accepted Q0.13 the same day, which
-  keeps a package's source importing by path only inside its `src/`. The scaffold is committed
-  (`cf8b8e8`); the Q0.13 change is not yet. Phase 0 waits for that commit, then for
-  `pnpm install`, `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm format:check` to pass in a
-  real clone of it (which closes stage 0.1 and Phase 0). The Reviewer ran every gate command and
-  `pnpm build` independently on 2026-11-26, before a later fix to one lint-rule test and before
-  Q0.13; since then only the Coder has. Phase 0 Q0.14 awaits the user and blocks nothing.
-- **Phase 1** (core model and edit plan) is next.
-- **Phase 7** is in progress; the Android decision gate passed on 2026-11-26.
+- **Phase 0** (workspace scaffold) is complete (2026-11-27): the pnpm workspace, the packages from
+  architecture §4 and `apps/playground` with placeholder entry points, the enforced dependency
+  rules, and the gate commands below. The user settled the dependency rules and approved
+  `@types/node` and `@eslint/js` on 2026-11-26 (Phase 0 Q0.7 to Q0.13). The Reviewer ran
+  `pnpm install` and every gate command, all passing, in a real clone of commit `29483d4`. Phase 0
+  Q0.14 to Q0.16 and the agent-file correction in its Appendix A await the user; none blocks
+  Phase 1. Q0.15 is to be answered before Phase 2 stage 2.3 and Phase 3 stage 3.1.
+- **Phase 1** (core model and edit plan) is next: answer its questions Q1.1 to Q1.5, then start
+  stage 1.1.
+- **Phase 7** is in progress; the Android decision gate passed on 2026-11-26. Its handoff lists
+  the remaining items.
 
 Start or resume work by naming a stage of a phase document; its *Handoff* section says what to
 read first and do next. When a phase starts or finishes, the Planner updates this section.
@@ -195,8 +194,11 @@ agents' *Who runs the gate* sections.
 - `pnpm format` rewrites files with Prettier and normalises line endings to LF (`.editorconfig`).
   Files created on Windows can get CRLF, which `pnpm format:check` rejects. Prettier skips `docs/`,
   `.github/`, `prototypes/`, and `AGENTS.md`.
-- `.gitattributes` (`* text=auto eol=lf`) makes Git check text files out with LF whatever
-  `core.autocrlf` says; a fresh clone with `core.autocrlf=true` is untested.
+- `.gitattributes` (`* text=auto eol=lf`) makes Git store text files with LF when they are added
+  and check them out with LF whatever `core.autocrlf` says. It does not convert a file Git already
+  stored with CRLF; `git add --renormalize .` does, and every tracked text file has been stored
+  with LF since that was run after commit `29483d4` (`git ls-files --eol` shows it). A fresh clone
+  with `core.autocrlf=true` is untested: the clean-clone check ran with `false`.
 - pnpm 12 runs no dependency build script unless the package is listed under `allowBuilds` in
   `pnpm-workspace.yaml`. The list is empty because nothing needs one; a dependency that does is
   added there as part of its approval.

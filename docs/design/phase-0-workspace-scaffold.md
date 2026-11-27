@@ -1,6 +1,9 @@
 # Phase 0 — Workspace Scaffold
 
-**Status:** In progress · Part of the walking skeleton · [Roadmap](roadmap.md)
+**Status:** Complete (2026-11-27) · Part of the walking skeleton · [Roadmap](roadmap.md)
+
+Still maintained, not archived: Q0.14 to Q0.16 and the agent-file correction in Appendix A await
+the user (§7). None of them blocks Phase 1.
 
 ## 1. Goal and scope
 
@@ -16,10 +19,10 @@ folders from architecture §4, enforced dependency rules, and the gate commands.
 
 | Stage | Title | Status |
 |---|---|---|
-| 0.1 | Root workspace and toolchain | In progress — dependencies approved 2026-11-26 (Q0.7 a); the scaffold is committed (`cf8b8e8`), but the Q0.13 change is not; the clean-clone criterion waits for the commit that contains it and a check from a real clone of that commit (Q0.7 b) |
+| 0.1 | Root workspace and toolchain | Complete (2026-11-27) — dependencies approved 2026-11-26 (Q0.7 a); the Reviewer's check from a real clone of `29483d4` passed (Q0.7 b) |
 | 0.2 | Package and app skeletons | Complete |
-| 0.3 | Dependency rules enforced | Complete (2026-11-26) — closing rule met, reproduced independently by the Reviewer. Round 3 closed S1 and S2 (Q0.12); the Reviewer's round 3 review kept the stage Complete, and its letter-case gap in the S2 test (S-1) is fixed. Q0.13 accepted 2026-11-26 and implemented (uncommitted): the indirect routes around entry isolation are closed, not yet confirmed independently. S3, S4 for apps, and the other known limits remain; Q0.14 asks the user to confirm one part of the Q0.13 change that goes beyond the recommendation |
-| 0.4 | Gate commands and documentation | Complete; all six gate commands confirmed independently by the Reviewer over the round 3 files, before the S-1 fix and Q0.13; after them, the Coder's runs only. The agent-file correction in Appendix A awaits the user |
+| 0.3 | Dependency rules enforced | Complete (2026-11-26) — closing rule met, reproduced independently by the Reviewer. Round 3 closed S1 and S2 (Q0.12); the Reviewer's round 3 review kept the stage Complete, and its letter-case gap in the S2 test (S-1) is fixed. Q0.13 accepted 2026-11-26, implemented and committed (`dc5170a`), and confirmed independently by the Reviewer on 2026-11-27: the indirect routes around entry isolation are closed. S3, S4 for apps, redirection of an entry point through configuration (Q0.15), and the other known limits remain; Q0.14 asks the user to confirm one part of the Q0.13 change that goes beyond the recommendation |
+| 0.4 | Gate commands and documentation | Complete; all six gate commands confirmed independently by the Reviewer in a real clone of `29483d4` on 2026-11-27, which covers the S-1 fix and Q0.13. The agent-file correction in Appendix A awaits the user |
 
 ## 3. Stages
 
@@ -58,6 +61,31 @@ folders from architecture §4, enforced dependency rules, and the gate commands.
 - **Update 2026-11-27:** the scaffold is committed (`cf8b8e8`, with the documents in `663c8b7`;
   read with `git log`). The Q0.13 change (stage 0.3) is not committed yet, so the clean-clone
   check runs on the commit that contains it, not on `cf8b8e8`. The criterion is still not met.
+  *Later the same day:* the Q0.13 change was committed in `dc5170a`, with its documents in
+  `29483d4`.
+- **Closed 2026-11-27, after the clean-clone check (Q0.7 b).** The Reviewer's report as relayed to
+  the Planner; the Planner saw no command output and ran no build or package script.
+  - Clean clone: **met.** The Reviewer, not the Coder, cloned the local repository at `29483d4`
+    into a folder outside it, on the same Windows machine, with Node v26.12.1 and pnpm 12.16.1
+    (the versions `engines` and `packageManager` pin) and an effective `core.autocrlf` of `false`
+    (the global Git configuration overrides the system's `true`). In the clone `pnpm install`
+    exited 0 (134 packages added, no warnings), and so did `pnpm typecheck`, `pnpm lint`,
+    `pnpm test` (11 files, 2129 tests, as in the original working tree), `pnpm format:check`,
+    `pnpm test:golden` (no specs), and `pnpm build`. Afterwards `git status` in the clone was
+    clean apart from ignored folders, `git ls-files` listed the same 110 files as the original,
+    and the build needed nothing that exists only in the original. The report does not name the
+    shell; the terminal on that machine is Git Bash (AGENTS.md *Environment*).
+  - Checked on disk by the Planner: `HEAD` is `29483d4`; `git status --short` in the original
+    shows only the untracked `prototypes/`, which is outside the workspace; `git ls-files` counts
+    110 files.
+  - Strict: **met**, re-read: `tsconfig.base.json` sets `strict: true`, and all 20 package, app,
+    and tools tsconfigs extend it.
+  - Dependencies: **met**, re-read: the root `package.json` declares `@eslint/js`, `@types/node`,
+    `eslint`, `prettier`, `typescript`, `typescript-eslint`, and `vitest`, and
+    `apps/playground/package.json` declares `@playwright/test` and `vite`, each approved (Q0.1,
+    Q0.5, Q0.7 a); the packages declare only `@moviemaker` workspace dependencies.
+  - Every criterion holds; stage 0.1 is Complete. The clone also showed that `.gitattributes`
+    does not convert files Git already stored with CRLF (§4 *Formatting*).
 
 ### 0.2 Package and app skeletons
 
@@ -272,8 +300,9 @@ folders from architecture §4, enforced dependency rules, and the gate commands.
     placeholder test files and 23 in `eslint-config-files.test.ts`, counted by the Planner. The
     cases in `package-boundary.test.ts` were not recounted, so the 1072 cases in `lint-rules`
     (1082 minus 10) are the Coder's calculation, not an observed output.
-- **Q0.13, implemented after the user accepted it on 2026-11-26** (uncommitted). Read on disk by
-  the Planner on 2026-11-27 in `eslint.config.js` and `tools/lint/package-boundary.test.ts`, and
+- **Q0.13, implemented after the user accepted it on 2026-11-26** (committed in `dc5170a` on
+  2026-11-27). Read on disk by the Planner on 2026-11-27 in `eslint.config.js` and
+  `tools/lint/package-boundary.test.ts`, and
   in `git diff` against `663c8b7`, which changes only those two files; the Planner ran no build or
   package script:
   - `moviemaker/package-boundary` has an option `inside`. For every package in `allowedImports`,
@@ -325,9 +354,48 @@ folders from architecture §4, enforced dependency rules, and the gate commands.
   - Searched: no package has a file outside `src/` other than `package.json` and its tsconfigs,
     and the only relative imports under `packages/` are `./index` in the eight placeholder
     tests.
-  - **Not confirmed independently yet.** Stage 0.3 stays Complete: its criteria are read as
-    direct imports (Q0.12) and were met before. The clean-clone check (§7 step 2) is the next
-    independent run over these files.
+  - **Not confirmed independently at that point.** Stage 0.3 stays Complete: its criteria are read
+    as direct imports (Q0.12) and were met before. Superseded by *Independent check of Q0.13*
+    below.
+- **Independent check of Q0.13, 2026-11-27.** The Reviewer's report as relayed to the Planner;
+  the Planner saw no command output and ran no command.
+  - In the real clone of `29483d4` (stage 0.1 *Closed*): the full gate passes, `pnpm test` with
+    11 files and 2129 tests. That observed total also confirms the 1049 earlier cases in
+    `package-boundary.test.ts` that the Planner had not recounted (2129 = 10 + 23 + 1047 + 1049).
+  - Routes 1 to 4 of the suite reproduced by hand in the real packages: all rejected by
+    `pnpm lint`; the accepted cases accepted; no new bypass found.
+  - With the previous `eslint.config.js` swapped in, 1014 of the 2119 `lint-rules` cases fail,
+    the Coder's figure.
+  - **TypeScript, on the committed state.** `tsc -b` rejects routes 1 to 3 when the imported
+    file is a `.ts` file outside `src/`: the packages are composite projects, and a file outside
+    the project's file list fails with TS6307. It passes route 1 when the target under `tests/`
+    is a `.d.ts` file, route 4 (the importing file is in no tsconfig), a junction under `src/`
+    that leads outside it, and the configuration redirections below. Lint is the guard for all of
+    these; TS6307 is incidental and nothing relies on it. The round 3 record above (S1 *What
+    remained*, and Q0.13 in §5) says `tsc` exited 0 on route 1; it is kept as the record of that
+    run, but the committed state differs. The tsconfigs are unchanged between `cf8b8e8` and
+    `29483d4`; the round 3 run was on the uncommitted working tree, and its record does not say
+    whether its target was a `.d.ts` file or how `tsc` was invoked.
+  - **Symbolic links,** in a scratch clone: a junction `src/link` pointing at the package's
+    `tests/`, imported from under `src/`, and a junction `tests/link` pointing at its `src/`,
+    imported from under `tests/`, were both rejected by lint, because the real path is checked;
+    `tsc -b` passes both.
+  - **Configuration can redirect an entry point,** in a scratch clone: pointing `exports['.']` in
+    `packages/platform/package.json` at `./src/browser/index.ts`, or adding a tsconfig `paths`
+    alias in `engine` from `@moviemaker/platform` to the browser implementation, passes both
+    `pnpm lint` and `tsc -b`. The `entryPoints` table in `eslint.config.js` is written by hand,
+    no test compares it with each package's `exports`, and nothing forbids `paths`. New known
+    limit (below); Q0.15 asks the user.
+  - **Folder letter case** (bears on Q0.14), in a scratch clone: the `src/` confinement and the
+    `entryIsolation` rows match a folder named exactly `src`. Paths are compared
+    case-insensitively on Windows, but the folder patterns of the configuration are
+    case-sensitive. With `packages/platform/src` renamed to `SRC`, lint still failed, but only
+    because the block for files outside `src/` rejected the existing `index.test.ts` importing
+    `./index`.
+  - The Reviewer's verdict: Q0.13 is correctly implemented, stage 0.3 stays Complete, and
+    stage 0.1 can close. The round 3 hand checks recommended in the handoff (the two
+    `entryIsolation` rows, `@moviemaker/fonts` in `media`, a nested `eslint.config.js` in two
+    letter cases) were not reported; they were recommended, not exit criteria.
 - **Known limits**, recorded in architecture §4. S1 to S4 are the Reviewer's labels from the
   independent run. S1 and S2 were closed in round 3 (Q0.12); the others are accepted for now.
   - **S1. Entry points were not kept apart inside a package.** *Closed in round 3* by
@@ -336,7 +404,8 @@ folders from architecture §4, enforced dependency rules, and the gate commands.
     and the suite accepted both. *The indirect routes are closed by Q0.13* (above): a file under
     `src/` reaches by path only its own `src/`, where the rows cover every protected file, and
     the dependency rules have no cycle, so no other package leads back. **What remains:** the
-    forms of S3, and the symbolic-link handling of the new check, which has no durable test.
+    forms of S3, redirection of an entry point through configuration (below), and the
+    symbolic-link handling of the new check, which has no durable test.
     **What remained after round 3** (Q0.13, now closed): the rule checks each import on its own,
     does not follow chains, and checks only files under the protected folder. A file outside
     `src/` (under `tests/` or at the package root) is outside both the protected folder and the
@@ -347,8 +416,9 @@ folders from architecture §4, enforced dependency rules, and the gate commands.
       `export * from '../tests/x'` in `packages/platform/src/index.ts` and
       `export * from '@moviemaker/platform/browser'` in `packages/platform/tests/x.ts`, `eslint` and
       `tsc` both exit 0, and a symbol of the browser implementation typechecks through the
-      `platform` root. The catalog route (`../../tests/x` from `src/catalog/`, re-exporting
-      `@moviemaker/engine`) passes too.
+      `platform` root. *(The committed state differs: `tsc -b` rejects this route when `tests/x`
+      is a `.ts` file, with TS6307; see *Independent check of Q0.13*.)* The catalog route
+      (`../../tests/x` from `src/catalog/`, re-exporting `@moviemaker/engine`) passes too.
     - *By relative path.* `packages/platform/x.ts` importing `./src/browser/index`, and
       `packages/engine/tests/x.ts` importing `../src/index`, are accepted (ESLint on standard
       input). A protected file that imports such a file completes the chain.
@@ -380,11 +450,19 @@ folders from architecture §4, enforced dependency rules, and the gate commands.
   - A package or app not registered in `eslint.config.js` gets no check at all, and a package
     with a second entry point gets no entry isolation without an `entryIsolation` row (§4
     *Registering*).
+  - **An entry point can be redirected through configuration** (found 2026-11-27; Q0.15). The
+    `entryPoints` table in `eslint.config.js` is written by hand, and nothing compares it with
+    each package's `exports`. Pointing `@moviemaker/platform` at `./src/browser/index.ts` in
+    `platform`'s `package.json`, or a tsconfig `paths` alias in `engine` from
+    `@moviemaker/platform` to the browser implementation, passes `pnpm lint` and `tsc -b`
+    (reproduced by the Reviewer in a scratch clone). Nothing forbids `paths` in a tsconfig.
   - Globals are not imports: test tsconfigs set `types: ["node"]`, so `process` and `Buffer`
     type-check in every test file, `core`'s included; only imports are checked there.
-  - The symbolic-link checks of both rules are covered only by the Coder's manual junction run in
-    round 2, not by a durable test; no run is reported for the entry-isolation one, or for the
-    `src/` confinement of Q0.13.
+  - The symbolic-link checks of both rules have no durable test. Manual runs: the Coder's
+    junction run in round 2, and the Reviewer's junction probes for the Q0.13 checks on
+    2026-11-27 (a junction under `src/` leading to `tests/`, and one under `tests/` leading to
+    `src/`; both rejected by lint, both passed by `tsc -b`). No run is reported for the
+    symbolic-link handling of the two `entryIsolation` rows.
   - Files in a package outside `src/` are linted but neither typechecked nor run: the package
     tsconfigs include only `src/`, and Vitest collects only `src/**/*.test.ts` and
     `src/**/*.test.tsx`. So the by-name self-import that the Q0.13 change requires there (Q0.14)
@@ -396,7 +474,10 @@ folders from architecture §4, enforced dependency rules, and the gate commands.
     a different rule on POSIX that has never run. The CI workflow planned after Phase 1 (Q0.4) would be the
     first POSIX run if it uses a Linux runner.
   - TypeScript enforces only the edges between packages by name and `core`'s compiler settings;
-    everything else in this stage rests on ESLint.
+    everything else in this stage rests on ESLint. Because the packages are composite projects,
+    `tsc -b` also happens to reject a package file importing a `.ts` file outside the project's
+    file list (TS6307), but not a `.d.ts` file, a file reached through a junction under `src/`, or
+    a redirection through configuration; nothing relies on it.
 - **Not a limit:** a query or hash suffix on a specifier. TypeScript and Vite resolve it to the
   same file, which the checks above already cover, so it is not a practical bypass.
 - **No longer limits after round 2:** third-party specifiers (now allowlisted; round 1 left them
@@ -448,8 +529,13 @@ folders from architecture §4, enforced dependency rules, and the gate commands.
     the files after it, none yet. The clean-clone check (§7 step 2) reruns `typecheck`, `lint`,
     `test`, and `format:check` over the committed files.
   - Rerun by the Coder after Q0.13 (the same six commands, test with 11 files and 2129 tests;
-    all exit 0): the Coder's report only; counts on disk in stage 0.3. No independent run covers
-    the Q0.13 files yet; the clean-clone check, on the commit that contains them, is the next.
+    all exit 0): the Coder's report only; counts on disk in stage 0.3. No independent run covered
+    the Q0.13 files at that point. Superseded by the next line.
+  - **Independently, clean-clone check, 2026-11-27:** the Reviewer ran all six commands in a real
+    clone of `29483d4` (stage 0.1 *Closed*): `pnpm typecheck`, `pnpm lint`, `pnpm test` (11
+    files, 2129 tests), `pnpm test:golden` (no specs), `pnpm format:check`, and `pnpm build`, all
+    exit 0, after `pnpm install`. This confirms the gate independently over the committed files,
+    the S-1 fix and Q0.13 included. Every exit criterion of the stage holds; it stays Complete.
 
 ## 4. Decisions already taken
 
@@ -534,9 +620,15 @@ Taken while implementing, 2026-11-26:
   its browsers are installed in Phase 2. `test:golden` runs with `--pass-with-no-tests` only
   because no spec exists yet; Phase 2 stage 2.5 removes the flag (an exit criterion there).
 - **Formatting:** `.editorconfig` sets LF line endings, and `.gitattributes` (`* text=auto eol=lf`)
-  makes Git check text files out with LF, so a clone with `core.autocrlf=true` should still pass
-  `format:check`. That is untested until the Q0.7 (b) check from a real clone, after the first
-  commit. Prettier formats everything
+  makes Git store text files with LF when they are added and check them out with LF. It does not
+  convert a file Git had already stored with CRLF before `.gitattributes` existed. *Corrected
+  2026-11-27:* this said Git checks text files out with LF, which was not exact; the clean-clone
+  check found seven files stored with CRLF (six under `docs/mockups/` and
+  `docs/moviemaker-architecture.md`), checked out with CRLF. Prettier skips `docs/`, so they did
+  not fail `format:check`. They are renormalised (`git add --renormalize`) in the commit that
+  follows `29483d4`; after it every tracked text file is stored with LF (`git ls-files --eol`).
+  The clone ran with an effective `core.autocrlf` of `false`, so a clone with
+  `core.autocrlf=true` is still untested. Prettier formats everything
   except `docs/`, `.github/`, `prototypes/`, and `AGENTS.md`.
 
 Taken by the user on 2026-11-26 (Q0.7 to Q0.12, each recommendation accepted as written):
@@ -545,7 +637,8 @@ Taken by the user on 2026-11-26 (Q0.7 to Q0.12, each recommendation accepted as 
 - **The clean-clone check follows the first commit** (Q0.7 b). The working-tree install is not
   accepted in its place, so stage 0.1 and Phase 0 stay open until the user commits and the check
   runs from a real clone. The first commit (`cf8b8e8`) predates the Q0.13 change, so the check
-  runs on the later commit that contains it, which covers the first commit's files too.
+  runs on the later commit that contains it, which covers the first commit's files too. Met
+  2026-11-27 on `29483d4` (stage 0.1 *Closed*).
 - **`engine` and `audio` do not import `media`** (Q0.8). They declare their inputs as their own
   interfaces (the engine's frame source in Phase 2 stage 2.2, the mixer's prepared-PCM reader),
   `media` implements them without importing either, and `app-state` or an app's worker start-up
@@ -588,7 +681,7 @@ Taken by the user on 2026-11-26 (Q0.13, the recommendation accepted as written):
   later change edits under the architecture triggers.
 - Q0.13 (and Q0.14, whichever way it goes) changes how a dependency rule is enforced, not which
   package may import which; it is one block of lint configuration, easily reversed, and lives in
-  architecture §4.
+  architecture §4. Q0.15, if accepted, adds a test and changes no rule.
 
 ## 5. Open questions
 
@@ -606,8 +699,10 @@ Taken by the user on 2026-11-26 (Q0.13, the recommendation accepted as written):
 | Q0.10 | May `platform` or `fonts` import another package? While building, both were given an empty allowlist, and the Planner wrote that into architecture §4 as settled; the user never decided it. For `platform` it matters: with no imports, the adapter interfaces of architecture §13.1 cannot use `core` types such as the project, an asset, or its fingerprint. | **Resolved 2026-11-26** with the recommendation: `platform` and `fonts` import nothing; the adapter interfaces deal in bytes, byte ranges, paths, URLs, and their own small types, and `app-state` or `media` translate to `core` types. The recommendation as written: keep both importing nothing. The adapters are input and output: they can deal in bytes, byte ranges, paths, URLs, and small types of their own, while `core` keeps parsing, validation, and migration, and `app-state` or `media` maps between the two. Then a `schemaVersion` change never touches the Electron or Kotlin implementations. If an approved signature in Phase 3 Q3.2 genuinely needs a `core` type, allowing `platform → core` is a one-line change and creates no cycle. `fonts` is font files and a catalog and needs nothing. | Phase 3 stage 3.1 (with Q3.2) |
 | Q0.11 | Which packages may `app-state` import? While building it was allowed `core`, `engine` (root and catalog), `audio`, `media`, and `platform` interfaces, never a platform implementation or `fonts`, and the Planner wrote that into architecture §4 as settled; the user never decided it. The architecture §3 diagram draws only `app-state → core, engine, audio`. | **Resolved 2026-11-26** with the recommendation: the list as built (never `@moviemaker/platform/browser` or `fonts`), and the §3 diagram gains `app-state → media` and `app-state → platform`. The recommendation as written: confirm the list as built. The export controller (Phase 5 stage 5.3) muxes with `media` into the platform's `ExportSink`, the document lifecycle (stage 5.1) uses `ProjectFiles`, and the Q0.8 recommendation has `app-state` connect `media` to `engine` and `audio`. Add `app-state → media` and `app-state → platform` to the §3 diagram together with the Q0.8 correction. | Phase 5 stage 5.1 |
 | Q0.12 | Close S1 and S2 (stage 0.3 *Known limits*) now with cheap checks, or accept them as known limits until code lands behind a second entry point? S1: inside a package nothing stops one entry point from re-exporting another, so `engine`, `audio`, and `media` could reach the browser implementation through `@moviemaker/platform`, and `ui-kit` the renderer through `@moviemaker/engine/catalog`. S2: an `eslint.config.*` inside a package or folder replaces the root configuration there and switches the rule off silently. The gap first matters in Phase 2 stage 2.3 (real code in the catalog) and Phase 3 stage 3.1 (the browser implementation), and again when a later phase adds an entry point or an app with its own tooling (Phase 6, Phase 9). The Reviewer's view: S1 is the most likely mistake in practice, and it blocks stage 0.3 criterion 2 only if that criterion is read to cover indirect imports. | **Resolved 2026-11-26** with the recommendation: both closed with code now, not accepted as limits; criterion 2 stays read as direct imports. Implemented in round 3 (stage 0.3); a remaining indirect route is Q0.13, resolved and implemented since. The recommendation as written: close both now, as one small Coder change before Phase 2 stage 2.3 and Phase 3 stage 3.1, with rejecting and accepting cases in the `lint-rules` suite. S1: the entry point that more packages may import must not reach the other one, by name or by relative path. Files of the `platform` root may not import `src/browser/` or `@moviemaker/platform/browser`; files under `engine`'s `src/catalog/` may not import the rest of `engine` or `@moviemaker/engine`. The other direction stays allowed: the browser implementation implements the interfaces, and the renderer reads the catalog. S2: a test in the suite that fails if any `eslint.config.*` other than the root one exists under `packages/`, `apps/`, or `tools/`. (Passing `--config` in `pnpm lint` would make nested files inert for the gate, but not in the editor or the suite.) Keep criterion 2 read as direct imports, so stage 0.3 stays Complete. Accepting the limits instead is defensible while both entry points are placeholders, but then Phase 2 stage 2.3 and Phase 3 stage 3.1 should gain an exit criterion that their entry points stay separate. | Phase 2 stage 2.3, Phase 3 stage 3.1 |
-| Q0.13 | Close the indirect routes around entry isolation (stage 0.3, S1 *What remains*)? `moviemaker/entry-isolation` checks each import on its own, and only in files under the protected folder. A file outside `src/` (under `tests/` or at the package root) is neither protected nor part of the other entry point, a protected file may import it by relative path, and it can reach the other entry point in two ways. *By name:* the allowlist lets it import its own package's entry points, so with `export * from '../tests/x'` in `packages/platform/src/index.ts` and `export * from '@moviemaker/platform/browser'` in `packages/platform/tests/x.ts`, `eslint` and `tsc` both exit 0 and a symbol of the browser implementation typechecks through the `platform` root; the catalog route (`../../tests/x`, then `@moviemaker/engine`) passes too. *By relative path:* `packages/platform/x.ts` importing `./src/browser/index`, and `packages/engine/tests/x.ts` importing `../src/index`, are accepted. The catalog importing `'../../x'` (which resolves to `packages/engine/x`, outside `src/`) is accepted as well. The same relative path out of `src/` lets package source import an unlinted JavaScript file (S4). Found by the Planner reading `eslint.config.js` in round 3; both routes reproduced by the Reviewer in a scratch copy of the repository in the round 3 review (S-6), the relative-path cases with ESLint on standard input. | **Resolved 2026-11-26** with the recommendation, and implemented (stage 0.3, *Q0.13, implemented*): package files under `src/`, tests included, import by a relative or absolute path only inside their own `src/`, with rejecting and accepting cases in the `lint-rules` suite. The implementation also rejects a path into a package's own `src/` from any of its files outside `src/`, which the recommendation allowed; Q0.14 asks the user to confirm that part. The recommendation as written, corrected where it is no longer true: close it with one small Coder change before Phase 2 stage 2.3 and Phase 3 stage 3.1, when real code first lands behind the second entry points: in package files under `src/`, tests included, a relative or absolute path must stay inside the package's `src/`. That removes both routes for both `entryIsolation` rows and for any later one, because each needs a file under `src/` to import a file outside it, and S4's `../leak.js`. [As written it went on: "files under `tests/` may still import `../src/…`". As built they may not (Q0.14).] Add rejecting and accepting cases to the `lint-rules` suite. Nothing under `src/` imports outside it today (searched). Accepting it as a known limit is defensible, because the route needs a deliberate file outside `src/` that a review would see; then Phase 2 stage 2.3 and Phase 3 stage 3.1 should gain an exit criterion that no file under `src/` imports outside it. | — |
-| Q0.14 | The Q0.13 change goes one step beyond the accepted recommendation. Besides keeping paths in package files under `src/` inside `src/`, it makes every file of a package outside `src/` (under `tests/`, at the package root, or in another folder) fail `pnpm lint` when it imports its own package's `src/` by a relative or absolute path; such a file must import the package by name. The recommendation said files under `tests/` may still import `../src/…`. Keep the stricter rule? It was chosen while building, not by the user, so it is interim (stage 0.3). | Open. Recommendation: keep it. No such file exists, and package tests are colocated under `src/` (test instructions), so it first matters if a package gains a `tests/` folder or a root-level script, which no phase plans. A file there then uses only the package's entry points, as an app does, and route 4 fails on its own rather than only as part of a chain. The alternative is to remove that block from `eslint.config.js` and its group from the suite; entry isolation still holds then, because nothing under `src/` can import such a file. Either way, the change that adds the first package `tests/` folder also adds a tsconfig and a Vitest include for it and checks that the self-import by name typechecks (stage 0.3 *Known limits*). | — |
+| Q0.13 | Close the indirect routes around entry isolation (stage 0.3, S1 *What remains*)? `moviemaker/entry-isolation` checks each import on its own, and only in files under the protected folder. A file outside `src/` (under `tests/` or at the package root) is neither protected nor part of the other entry point, a protected file may import it by relative path, and it can reach the other entry point in two ways. *By name:* the allowlist lets it import its own package's entry points, so with `export * from '../tests/x'` in `packages/platform/src/index.ts` and `export * from '@moviemaker/platform/browser'` in `packages/platform/tests/x.ts`, `eslint` and `tsc` both exit 0 and a symbol of the browser implementation typechecks through the `platform` root; the catalog route (`../../tests/x`, then `@moviemaker/engine`) passes too. [On the committed state `tsc -b` rejects this route when `tests/x` is a `.ts` file (TS6307); lint is the guard (stage 0.3 *Independent check of Q0.13*, 2026-11-27).] *By relative path:* `packages/platform/x.ts` importing `./src/browser/index`, and `packages/engine/tests/x.ts` importing `../src/index`, are accepted. The catalog importing `'../../x'` (which resolves to `packages/engine/x`, outside `src/`) is accepted as well. The same relative path out of `src/` lets package source import an unlinted JavaScript file (S4). Found by the Planner reading `eslint.config.js` in round 3; both routes reproduced by the Reviewer in a scratch copy of the repository in the round 3 review (S-6), the relative-path cases with ESLint on standard input. | **Resolved 2026-11-26** with the recommendation, and implemented (stage 0.3, *Q0.13, implemented*): package files under `src/`, tests included, import by a relative or absolute path only inside their own `src/`, with rejecting and accepting cases in the `lint-rules` suite. The implementation also rejects a path into a package's own `src/` from any of its files outside `src/`, which the recommendation allowed; Q0.14 asks the user to confirm that part. The recommendation as written, corrected where it is no longer true: close it with one small Coder change before Phase 2 stage 2.3 and Phase 3 stage 3.1, when real code first lands behind the second entry points: in package files under `src/`, tests included, a relative or absolute path must stay inside the package's `src/`. That removes both routes for both `entryIsolation` rows and for any later one, because each needs a file under `src/` to import a file outside it, and S4's `../leak.js`. [As written it went on: "files under `tests/` may still import `../src/…`". As built they may not (Q0.14).] Add rejecting and accepting cases to the `lint-rules` suite. Nothing under `src/` imports outside it today (searched). Accepting it as a known limit is defensible, because the route needs a deliberate file outside `src/` that a review would see; then Phase 2 stage 2.3 and Phase 3 stage 3.1 should gain an exit criterion that no file under `src/` imports outside it. | — |
+| Q0.14 | The Q0.13 change goes one step beyond the accepted recommendation. Besides keeping paths in package files under `src/` inside `src/`, it makes every file of a package outside `src/` (under `tests/`, at the package root, or in another folder) fail `pnpm lint` when it imports its own package's `src/` by a relative or absolute path; such a file must import the package by name. The recommendation said files under `tests/` may still import `../src/…`. Keep the stricter rule? It was chosen while building, not by the user, so it is interim (stage 0.3). | Open. Recommendation: keep it. No such file exists, and package tests are colocated under `src/` (test instructions), so it first matters if a package gains a `tests/` folder or a root-level script, which no phase plans. A file there then uses only the package's entry points, as an app does, and route 4 fails on its own rather than only as part of a chain. The alternative is to remove that block from `eslint.config.js` and its group from the suite; entry isolation still holds then, because nothing under `src/` can import such a file. Either way, the change that adds the first package `tests/` folder also adds a tsconfig and a Vitest include for it and checks that the self-import by name typechecks (stage 0.3 *Known limits*). Supporting evidence (2026-11-27, stage 0.3 *Independent check of Q0.13*): the `src/` confinement and the `entryIsolation` rows match a folder named exactly `src`, with case-sensitive folder patterns, while paths are compared case-insensitively on Windows. With `packages/platform/src` renamed to `SRC` in a scratch clone, lint still failed only because the stricter rule rejected the existing `index.test.ts` importing `./index`. Without it, that rename would pass lint. The recommendation stands; the decision is the user's. | — |
+| Q0.15 | Should a test check that configuration cannot redirect an entry point? Found by the Reviewer on 2026-11-27 (stage 0.3 *Known limits*). The `entryPoints` table in `eslint.config.js` is written by hand, and nothing compares it with each package's `exports`. Pointing `exports['.']` in `packages/platform/package.json` at `./src/browser/index.ts`, or adding a `paths` alias in `engine`'s tsconfig from `@moviemaker/platform` to the browser implementation, passed `pnpm lint` and `tsc -b` in a scratch clone, so `engine`, `audio`, and `media` would get a platform implementation through the `platform` root without any rule seeing it. Nothing forbids `paths` in a tsconfig. | Open. Recommendation: yes, one small Coder change in `tools/lint/`: a test that reads each package's `package.json` and fails unless its `exports` keys and targets match the `entryPoints` table and the entry-point folders of the `entryIsolation` rows, and fails if any package or app tsconfig sets `paths`. Cheap, and it turns a silent redirection into a failing `pnpm test`. Land it before Phase 2 stage 2.3 and Phase 3 stage 3.1, when real code first lands behind the second entry points. It does not need to land before Phase 1: `core` has one entry point, and Phase 1 changes no `exports` and no tsconfig `paths`. The alternative is to accept it as a known limit, since such a change is visible in review; then stages 2.3 and 3.1 gain an exit criterion that `engine`'s and `platform`'s `exports` and tsconfigs match the `entryPoints` table and set no `paths`. A test against the exports is not an architectural decision and needs no ADR. | Phase 2 stage 2.3, Phase 3 stage 3.1 (the answer; not Phase 1) |
+| Q0.16 | Which date do the records use? The machine clock and the commit timestamps read 2026-11-27 (`dc5170a` and `29483d4` at about 05:20 +01:00, Friday 27 November 2026), while the session context of some agents said 2026-11-26. The documents carry both: entries dated 2026-11-27 (in this document stage 0.1 *Update 2026-11-27*, the Q0.13 record in stage 0.3, and the §6 entry for Q0.13; Phase 2 and Phase 3 stage logs; the roadmap stage log), and work dated 2026-11-26 that may have happened after midnight, such as the acceptance of Q0.13. Should earlier entries be rewritten? | Open. Recommendation: keep the commit-stamped date 2026-11-27 for entries made after the first commit on the 27th, and leave earlier entries as dated; rewriting dates in records would change history without changing any decision. New entries since use 2026-11-27, matching the commit timestamps. | — |
 
 ## 6. Stage log
 
@@ -623,49 +718,36 @@ Taken by the user on 2026-11-26 (Q0.13, the recommendation accepted as written):
 | 2026-11-26 | Q0.7 to Q0.12 resolved with the recommendations (§4). Round 3: the Coder implemented Q0.9 (`engine` and `ui-kit` import `fonts`) and Q0.12 (`moviemaker/entry-isolation` and the nested-configuration test), closing S1 and S2; the reported gate passes (11 files, 1074 tests, 1064 in `lint-rules`) but is not confirmed independently. Architecture §3 redrawn and §4 settled. Stage 0.1: dependency criterion met; the clean-clone criterion waits for the first commit. Stage 0.3 stays Complete. Q0.13 opened on an indirect route around entry isolation. Phase 0 stays In progress. |
 | 2026-11-26 | Round 3 review. The Reviewer ran all six gate commands over the round 3 files (all pass; the first independent run of `test:golden`, `format:check`, and `build`) and kept stage 0.3 Complete. S-1: the nested-configuration test missed `ESLINT.config.js` on Windows; the Coder made it case-insensitive and its skip list equal to ESLint's ignores, `docs/` aside (S-2), with a test against the real ESLint; the Coder's gate after the fix passes (11 files, 1082 tests), not yet confirmed independently. Q0.13 reproduced by the Reviewer by name and by relative path, still open. Q0.5's resolution date corrected to 2026-11-26. Stage 0.4 stays Complete; stage 0.1 and Phase 0 stay In progress for the commit and the clean-clone check. |
 | 2026-11-27 | Q0.13 resolved (accepted 2026-11-26 with the recommendation) and implemented by the Coder, uncommitted: files under a package's `src/` import by path only inside `src/`, and files outside `src/` import their package by name; the four routes of the suite fail lint. 1047 new `lint-rules` cases (counted); the Coder's gate passes (11 files, 2129 tests) and the committed configuration fails 1014 of the cases (reported), neither confirmed independently. Q0.14 opened: the outside-`src/` part goes beyond the recommendation and is interim. The scaffold is committed (`cf8b8e8`); the clean-clone check runs on the commit that contains the Q0.13 change. Stages 0.3 and 0.4 stay Complete; stage 0.1 and Phase 0 stay In progress. |
+| 2026-11-27 | The Q0.13 change committed (`dc5170a`, documents `29483d4`). Clean-clone check (Q0.7 b) by the Reviewer in a real clone of `29483d4`: `pnpm install` and all six gate commands exit 0 (11 files, 2129 tests), the clone clean afterwards, the same 110 files tracked. Q0.13 confirmed independently (routes 1 to 4 rejected by lint by hand; 1014 cases fail under the previous configuration). **Stage 0.1 Complete; every stage is Complete, so Phase 0 is Complete.** Corrected: `.gitattributes` does not convert files already stored with CRLF (seven are renormalised in the next commit; §4 *Formatting*), and on the committed state `tsc -b` rejects routes 1 to 3 to a `.ts` file with TS6307 (stage 0.3). New known limit: configuration can redirect an entry point; Q0.15 opened. Q0.14 gained evidence on folder letter case. Q0.16 opened on dates. Q0.14 to Q0.16 and Appendix A remain open for the user and do not block Phase 1. |
 
 ## 7. Handoff
 
-- **Read first:** AGENTS.md (*Definition of done* has the gate commands), architecture §3 and §4,
-  stage 0.1 (*Re-checked* and *Update 2026-11-27*), stage 0.3 (*Round 3*, *Round 3 review*,
-  *The S-1 fix*, *Q0.13, implemented*, and *Known limits*), stage 0.4, and §4 of this document.
-- **Left for Phase 0.** No answer from the user blocks it any more.
-  1. **Commit the Q0.13 change.** The scaffold is committed (`cf8b8e8`, documents in `663c8b7`);
-     the Q0.13 change to `eslint.config.js` and `tools/lint/package-boundary.test.ts`, and this
-     documentation, are not. The Orchestrator commits them.
-  2. **The clean-clone check (Q0.7 b), on that commit.** A real clone of the commit that contains
-     the Q0.13 change, not the working tree, is made on Windows in Git Bash, and `pnpm install`,
-     `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm format:check` run in it, each reported
-     with its output. The Orchestrator runs it with the Reviewer. If one fails (for example CRLF
-     line endings, or a file Git did not keep), it goes back to the Coder. Run by someone other
-     than the Coder, it also confirms independently the files after the S-1 fix and Q0.13
-     (stage 0.4). The same run should reproduce by hand, leaving the clone clean, at least:
-     `export * from './browser';` in `packages/platform/src/index.ts` and
-     `export * from '../index';` in `packages/engine/src/catalog/index.ts` (both fail
-     `pnpm lint`), `import '@moviemaker/fonts';` in `packages/media/src/index.ts` (fails
-     `pnpm lint`), and an empty `packages/engine/eslint.config.js`, then the same file renamed to
-     `ESLINT.config.js` (each fails `pnpm test`); and for Q0.13,
-     `export * from '../tests/x';` in `packages/platform/src/index.ts` and
-     `export * from '../../x';` in `packages/engine/src/catalog/index.ts` (both fail
-     `pnpm lint`, by `moviemaker/package-boundary`), and a new `packages/engine/tests/x.ts`
-     containing `import '../src/index';` (fails `pnpm lint`, by `moviemaker/entry-isolation`).
-     These are recommended, not exit criteria: the Reviewer's verdict already keeps stage 0.3
-     Complete.
-  3. **The Planner closes the stages.** When the Orchestrator reports step 2 as passed, with each
-     command and its output, the Planner marks stage 0.1 and Phase 0 Complete. `test:golden` and
-     `build` are not rerun by step 2; the Reviewer ran them in the round 3 review, and the Coder
-     after Q0.13.
-  4. Phase 1 can start meanwhile.
-  5. **Appendix A.** The user approves, edits, or rejects the agent-file correction in
+- **Phase 0 is Complete (2026-11-27).** Stage 0.1 closed on the clean-clone check of `29483d4`
+  (stage 0.1 *Closed*). The earlier steps of this handoff (commit the Q0.13 change, run the
+  clean-clone check, close the stages) are done; the round 3 hand checks it recommended were not
+  reported (stage 0.3 *Independent check of Q0.13*).
+- **Read first, for the open items:** stage 0.3 *Independent check of Q0.13* and *Known limits*,
+  §4 *Formatting*, and §5 Q0.14 to Q0.16.
+- **Right after this documentation change:** the Orchestrator runs `git add --renormalize .` and
+  commits the line-ending conversion of the seven files stored with CRLF (whitespace only), then
+  checks that `git ls-files --eol` shows no `i/crlf`. §4 *Formatting* and AGENTS.md
+  *Environment* describe the state after that commit.
+- **Open for the user; none blocks Phase 1:**
+  1. **Appendix A.** The user approves, edits, or rejects the agent-file correction in
      [Appendix A](#appendix-a--pending-agent-file-correction-awaiting-the-user); only the user
-     applies it, or tells an agent to. It is part of stage 0.4's outcome, not an exit criterion,
-     so it does not hold Phase 0.
-  6. **Q0.14.** The user confirms or reverses the outside-`src/` part of the Q0.13 change. It
-     blocks nothing and does not hold Phase 0; reversing it is a Coder change to
-     `eslint.config.js` and the suite.
+     applies it, or tells an agent to. It was part of stage 0.4's outcome, not an exit criterion.
+  2. **Q0.14.** The user confirms or reverses the outside-`src/` part of the Q0.13 change. It
+     blocks nothing; reversing it is a Coder change to `eslint.config.js` and the suite.
+  3. **Q0.15.** The user decides whether a test compares each package's `exports` with the
+     `entryPoints` table and forbids tsconfig `paths`. It does not need to land before Phase 1,
+     which touches neither, but its answer is needed before Phase 2 stage 2.3 and Phase 3
+     stage 3.1 (recommended: implement it before them).
+  4. **Q0.16.** The user decides whether dates in the records are rewritten (recommended: no).
+- **When the open items are settled,** the Planner archives this document (an `Archived` line
+  beneath the title).
 - **For later phases:** Q0.8 to Q0.13 no longer block anything, and the indirect routes around
-  entry isolation are closed before Phase 2 stage 2.3 and Phase 3 stage 3.1. Q0.14 blocks
-  nothing.
+  entry isolation are closed before Phase 2 stage 2.3 and Phase 3 stage 3.1; redirection of an
+  entry point through configuration is not (Q0.15). Q0.14 and Q0.16 block nothing.
 
 ## Appendix A — Pending agent-file correction (awaiting the user)
 
