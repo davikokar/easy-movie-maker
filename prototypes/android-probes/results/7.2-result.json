@@ -1,0 +1,123 @@
+{
+  "stage": "7.2",
+  "settings": {
+    "WIDTH": 1920,
+    "HEIGHT": 1080,
+    "FPS": 30,
+    "SECONDS": 3,
+    "SAMPLE_RATE": 48000,
+    "CHANNELS": 2
+  },
+  "support": {
+    "video": [
+      {
+        "codec": "avc1.640028",
+        "accel": "no-preference",
+        "supported": "yes"
+      },
+      {
+        "codec": "avc1.640028",
+        "accel": "prefer-hardware",
+        "supported": "yes"
+      },
+      {
+        "codec": "avc1.640028",
+        "accel": "prefer-software",
+        "supported": "yes"
+      },
+      {
+        "codec": "avc1.4d0028",
+        "accel": "no-preference",
+        "supported": "yes"
+      },
+      {
+        "codec": "avc1.4d0028",
+        "accel": "prefer-hardware",
+        "supported": "yes"
+      },
+      {
+        "codec": "avc1.4d0028",
+        "accel": "prefer-software",
+        "supported": "yes"
+      },
+      {
+        "codec": "avc1.42001f",
+        "accel": "no-preference",
+        "supported": "no"
+      },
+      {
+        "codec": "avc1.42001f",
+        "accel": "prefer-hardware",
+        "supported": "no"
+      },
+      {
+        "codec": "avc1.42001f",
+        "accel": "prefer-software",
+        "supported": "no"
+      }
+    ],
+    "audio": [
+      {
+        "codec": "mp4a.40.2",
+        "supported": "yes"
+      }
+    ],
+    "other": {
+      "opusEncode": "yes",
+      "vp9Encode": "yes",
+      "hevcEncode4k": "yes",
+      "hevcDecode4k": "yes"
+    }
+  },
+  "encode": {
+    "video": {
+      "codec": "avc1.640028",
+      "ok": true,
+      "error": null,
+      "chunks": 90,
+      "expected": 90,
+      "hasDescription": true,
+      "encodeSeconds": 1.23,
+      "encodeFps": 72.9
+    },
+    "audio": {
+      "codec": "mp4a.40.2",
+      "ok": true,
+      "error": null,
+      "chunks": 142,
+      "coveredSeconds": 3.03,
+      "hasDescription": true,
+      "encodeSeconds": 0.26
+    }
+  },
+  "mp4": {
+    "ok": true,
+    "bytes": 328240,
+    "mimeType": "video/mp4; codecs=\"avc1.640028, mp4a.40.2\"",
+    "durationSeconds": 3.029,
+    "videoCodec": "avc",
+    "videoFrames": 90,
+    "videoWidth": 1920,
+    "videoCanDecode": true,
+    "audioCodec": "aac",
+    "audioSampleRate": 48000,
+    "audioChannels": 2,
+    "audioCanDecode": true
+  },
+  "verdict": {
+    "h264EncodeViaWebCodecs": "PASS",
+    "aacEncodeViaWebCodecs": "PASS",
+    "mp4Mux": "PASS"
+  },
+  "device": {
+    "manufacturer": "samsung",
+    "model": "SM-G990B",
+    "androidRelease": "16",
+    "sdk": 36,
+    "soc": "SM8350",
+    "webViewPackage": "com.google.android.webview",
+    "webViewVersion": "157.0.8103.50"
+  },
+  "userAgent": "Mozilla/5.0 (Linux; Android 16; SM-G990B Build/BP2A.250605.031.A3; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/157.0.8103.50 Mobile Safari/537.36",
+  "finishedAt": "2026-11-26T14:15:50.265Z"
+}

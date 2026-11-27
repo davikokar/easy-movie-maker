@@ -1,0 +1,14 @@
+{
+  "name": "prototype-7-1-encoder-matrix",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Throwaway probe for roadmap stage 7.1: can Electron's WebCodecs encode H.264 and AAC on this OS?",
+  "main": "main.cjs",
+  "scripts": {
+    "probe": "electron ."
+  },
+  "dependencies": {
+    "electron": "45.5.0",
+    "mediabunny": "1.66.4"
+  }
+}

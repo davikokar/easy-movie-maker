@@ -1,0 +1,18 @@
+{
+  "name": "prototype-android-probes",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Throwaway Capacitor app hosting roadmap stages 7.2-7.5 on an Android device.",
+  "scripts": {
+    "build:web": "node scripts/build-web.mjs",
+    "probe": "bash scripts/run.sh"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.6.3",
+    "@capacitor/core": "8.6.3",
+    "mediabunny": "1.66.4"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.6.3"
+  }
+}

@@ -1,0 +1,459 @@
+{
+  "stage": "7.3",
+  "criterion": "at least 20 MB/s with flat memory, 1 GB to MediaStore",
+  "channels": [
+    {
+      "channel": "capacitor-base64",
+      "totalMiB": 64,
+      "chunkMiB": 1,
+      "windowSize": 1,
+      "startedAtMs": 1795703032085,
+      "seconds": 6.12,
+      "megabytesPerSecond": 11,
+      "bytesSent": 67108864,
+      "bytesWrittenByNative": 67108864,
+      "byteCountMatches": true,
+      "nativePssDriftMiB": -9,
+      "jsHeapDriftMiB": 0,
+      "endedAtMs": 1795703038314,
+      "samples": [
+        {
+          "sentMiB": 0,
+          "nativePssMiB": 155,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 10,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 8,
+          "nativePssMiB": 266,
+          "nativeHeapMiB": 20,
+          "javaHeapMiB": 127,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 16,
+          "nativePssMiB": 174,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 11,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 24,
+          "nativePssMiB": 179,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 11,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 32,
+          "nativePssMiB": 187,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 14,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 40,
+          "nativePssMiB": 200,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 4,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 48,
+          "nativePssMiB": 208,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 4,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 56,
+          "nativePssMiB": 204,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 4,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 64,
+          "nativePssMiB": 205,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 4,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 64,
+          "nativePssMiB": 191,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 4,
+          "jsHeapMiB": 10
+        }
+      ]
+    },
+    {
+      "channel": "loopback-http-post",
+      "totalMiB": 1024,
+      "chunkMiB": 4,
+      "windowSize": 2,
+      "startedAtMs": 1795703042329,
+      "seconds": 7.88,
+      "megabytesPerSecond": 136.2,
+      "bytesSent": 1073741824,
+      "bytesWrittenByNative": 1073741824,
+      "byteCountMatches": true,
+      "nativePssDriftMiB": -12,
+      "jsHeapDriftMiB": 0,
+      "endedAtMs": 1795703050403,
+      "samples": [
+        {
+          "sentMiB": 0,
+          "nativePssMiB": 195,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 4,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 128,
+          "nativePssMiB": 216,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 6,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 256,
+          "nativePssMiB": 220,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 6,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 384,
+          "nativePssMiB": 178,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 7,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 512,
+          "nativePssMiB": 190,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 8,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 640,
+          "nativePssMiB": 175,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 8,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 768,
+          "nativePssMiB": 187,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 9,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 896,
+          "nativePssMiB": 179,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 9,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 1024,
+          "nativePssMiB": 175,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 10,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 1024,
+          "nativePssMiB": 163,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 10,
+          "jsHeapMiB": 10
+        }
+      ]
+    },
+    {
+      "channel": "web-message-listener-arraybuffer",
+      "totalMiB": 1024,
+      "chunkMiB": 4,
+      "windowSize": 4,
+      "startedAtMs": 1795703054409,
+      "seconds": 4.9,
+      "megabytesPerSecond": 219.3,
+      "bytesSent": 1073741824,
+      "bytesWrittenByNative": 1073741824,
+      "byteCountMatches": true,
+      "nativePssDriftMiB": -8,
+      "jsHeapDriftMiB": 0,
+      "endedAtMs": 1795703059487,
+      "samples": [
+        {
+          "sentMiB": 0,
+          "nativePssMiB": 170,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 10,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 128,
+          "nativePssMiB": 193,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 33,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 256,
+          "nativePssMiB": 202,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 45,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 384,
+          "nativePssMiB": 190,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 21,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 512,
+          "nativePssMiB": 181,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 29,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 640,
+          "nativePssMiB": 196,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 45,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 768,
+          "nativePssMiB": 188,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 37,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 896,
+          "nativePssMiB": 187,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 37,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 1024,
+          "nativePssMiB": 188,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 37,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 1024,
+          "nativePssMiB": 188,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 37,
+          "jsHeapMiB": 10
+        }
+      ]
+    },
+    {
+      "channel": "loopback-http-post-1MiB-2GiB",
+      "totalMiB": 2048,
+      "chunkMiB": 1,
+      "windowSize": 2,
+      "startedAtMs": 1795703063495,
+      "seconds": 22.32,
+      "megabytesPerSecond": 96.2,
+      "bytesSent": 2147483648,
+      "bytesWrittenByNative": 2147483648,
+      "byteCountMatches": true,
+      "nativePssDriftMiB": -32,
+      "jsHeapDriftMiB": 0,
+      "endedAtMs": 1795703086158,
+      "samples": [
+        {
+          "sentMiB": 0,
+          "nativePssMiB": 147,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 37,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 256,
+          "nativePssMiB": 132,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 22,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 512,
+          "nativePssMiB": 138,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 27,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 768,
+          "nativePssMiB": 142,
+          "nativeHeapMiB": 16,
+          "javaHeapMiB": 32,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 1024,
+          "nativePssMiB": 143,
+          "nativeHeapMiB": 16,
+          "javaHeapMiB": 36,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 1280,
+          "nativePssMiB": 149,
+          "nativeHeapMiB": 16,
+          "javaHeapMiB": 41,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 1536,
+          "nativePssMiB": 121,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 11,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 1792,
+          "nativePssMiB": 116,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 9,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 2048,
+          "nativePssMiB": 117,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 14,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 2048,
+          "nativePssMiB": 117,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 14,
+          "jsHeapMiB": 10
+        }
+      ]
+    },
+    {
+      "channel": "web-message-listener-1MiB-2GiB",
+      "totalMiB": 2048,
+      "chunkMiB": 1,
+      "windowSize": 4,
+      "startedAtMs": 1795703090162,
+      "seconds": 9.48,
+      "megabytesPerSecond": 226.5,
+      "bytesSent": 2147483648,
+      "bytesWrittenByNative": 2147483648,
+      "byteCountMatches": true,
+      "nativePssDriftMiB": -6,
+      "jsHeapDriftMiB": 0,
+      "endedAtMs": 1795703099809,
+      "samples": [
+        {
+          "sentMiB": 0,
+          "nativePssMiB": 124,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 14,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 256,
+          "nativePssMiB": 120,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 15,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 512,
+          "nativePssMiB": 126,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 10,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 768,
+          "nativePssMiB": 121,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 15,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 1024,
+          "nativePssMiB": 128,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 13,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 1280,
+          "nativePssMiB": 121,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 15,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 1536,
+          "nativePssMiB": 119,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 15,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 1792,
+          "nativePssMiB": 120,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 17,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 2048,
+          "nativePssMiB": 115,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 12,
+          "jsHeapMiB": 10
+        },
+        {
+          "sentMiB": 2048,
+          "nativePssMiB": 115,
+          "nativeHeapMiB": 15,
+          "javaHeapMiB": 12,
+          "jsHeapMiB": 10
+        }
+      ]
+    }
+  ],
+  "verdict": {
+    "capacitor-base64": "FAIL",
+    "loopback-http-post": "PASS",
+    "web-message-listener-arraybuffer": "PASS",
+    "loopback-http-post-1MiB-2GiB": "PASS",
+    "web-message-listener-1MiB-2GiB": "PASS"
+  },
+  "device": {
+    "manufacturer": "samsung",
+    "model": "SM-G990B",
+    "androidRelease": "16",
+    "sdk": 36,
+    "soc": "SM8350",
+    "webViewPackage": "com.google.android.webview",
+    "webViewVersion": "157.0.8103.50"
+  },
+  "userAgent": "Mozilla/5.0 (Linux; Android 16; SM-G990B Build/BP2A.250605.031.A3; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/157.0.8103.50 Mobile Safari/537.36",
+  "finishedAt": "2026-11-26T14:25:03.837Z"
+}

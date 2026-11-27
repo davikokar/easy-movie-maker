@@ -1,0 +1,6 @@
+{
+  "appId": "dev.moviemaker.probes",
+  "appName": "MM Probes",
+  "webDir": "www",
+  "server": { "androidScheme": "https" }
+}

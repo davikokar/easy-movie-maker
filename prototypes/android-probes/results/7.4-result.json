@@ -1,0 +1,144 @@
+{
+  "stage": "7.4",
+  "capability": {
+    "original-4k-hevc": {
+      "decodeHardware": true,
+      "decodeSoftware": false
+    },
+    "proxy-720p-h264": {
+      "decodeHardware": true,
+      "decodeSoftware": true
+    }
+  },
+  "clips": [
+    {
+      "label": "original-4k-hevc",
+      "error": null,
+      "frames": 300,
+      "keyFrames": 5,
+      "megabitsPerSecond": 40,
+      "encodeSeconds": 6.8
+    },
+    {
+      "label": "proxy-720p-h264",
+      "error": null,
+      "frames": 300,
+      "keyFrames": 20,
+      "megabitsPerSecond": 3.4,
+      "encodeSeconds": 1.9
+    }
+  ],
+  "decode": {
+    "original4kSingleHardware": {
+      "error": null,
+      "frames": 300,
+      "expected": 300,
+      "seconds": 2.75,
+      "fps": 109
+    },
+    "original4kSingleSoftware": {
+      "error": "decoder config not supported",
+      "frames": 0
+    },
+    "original4kTwoSimultaneous": [
+      {
+        "error": null,
+        "frames": 300,
+        "expected": 300,
+        "seconds": 3.63,
+        "fps": 82.7
+      },
+      {
+        "error": null,
+        "frames": 300,
+        "expected": 300,
+        "seconds": 3.74,
+        "fps": 80.2
+      }
+    ],
+    "proxySingle": {
+      "error": null,
+      "frames": 300,
+      "expected": 300,
+      "seconds": 0.55,
+      "fps": 543.2
+    },
+    "proxyTwoSimultaneous": [
+      {
+        "error": null,
+        "frames": 300,
+        "expected": 300,
+        "seconds": 0.76,
+        "fps": 393
+      },
+      {
+        "error": null,
+        "frames": 300,
+        "expected": 300,
+        "seconds": 0.8,
+        "fps": 377.4
+      }
+    ],
+    "proxyPlusOriginal": [
+      {
+        "error": null,
+        "frames": 300,
+        "expected": 300,
+        "seconds": 2.29,
+        "fps": 130.8
+      },
+      {
+        "error": null,
+        "frames": 300,
+        "expected": 300,
+        "seconds": 2.23,
+        "fps": 134.5
+      }
+    ]
+  },
+  "seek": {
+    "original4k": {
+      "error": null,
+      "count": 25,
+      "medianMs": 272.6,
+      "p95Ms": 496.1,
+      "maxMs": 517
+    },
+    "proxy": {
+      "error": null,
+      "count": 25,
+      "medianMs": 17.7,
+      "p95Ms": 38.5,
+      "maxMs": 95.2
+    }
+  },
+  "limits": {
+    "original4kHardware": {
+      "maxConcurrentWorking": 5,
+      "testedUpTo": 12,
+      "firstFailure": "EncodingError: Decoding error."
+    },
+    "proxyHardware": {
+      "maxConcurrentWorking": 12,
+      "testedUpTo": 12,
+      "firstFailure": null
+    }
+  },
+  "verdict": {
+    "twoProxyDecodesRealTime30fps": "PASS",
+    "proxySeekUnder300ms": "PASS",
+    "original4kExportDecodeAtLeast10fps": "PASS",
+    "note": "Decode only: no rendering, texture upload, or audio runs alongside."
+  },
+  "device": {
+    "manufacturer": "samsung",
+    "model": "SM-G990B",
+    "androidRelease": "16",
+    "sdk": 36,
+    "soc": "SM8350",
+    "webViewPackage": "com.google.android.webview",
+    "webViewVersion": "157.0.8103.50"
+  },
+  "userAgent": "Mozilla/5.0 (Linux; Android 16; SM-G990B Build/BP2A.250605.031.A3; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/157.0.8103.50 Mobile Safari/537.36",
+  "finishedAt": "2026-11-26T14:26:34.952Z"
+}

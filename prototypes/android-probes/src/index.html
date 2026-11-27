@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MM probes</title>
+    <style>
+      body { font: 14px system-ui, sans-serif; margin: 8px; background: #fff; color: #000; }
+      button { font-size: 16px; margin: 4px 4px 4px 0; padding: 8px 12px; }
+      pre { white-space: pre-wrap; font-size: 11px; max-height: 70vh; overflow: auto; border: 1px solid #999; padding: 4px; }
+      #flash { position: fixed; inset: 0; background: #fff; display: none; z-index: 10; }
+      #flash.on { display: block; }
+    </style>
+  </head>
+  <body>
+    <div id="flash"></div>
+    <h3>Android probes (roadmap 7.2 to 7.5)</h3>
+    <div>
+      <button id="b72">7.2 encoders</button>
+      <button id="b73">7.3 transfer</button>
+      <button id="b74">7.4 decoders</button>
+      <button id="b75">7.5 sync</button>
+    </div>
+    <pre id="log"></pre>
+    <script type="module" src="main.js"></script>
+  </body>
+</html>
